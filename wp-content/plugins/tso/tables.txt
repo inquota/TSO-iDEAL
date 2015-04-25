@@ -1,0 +1,105 @@
+CREATE TABLE IF NOT EXISTS `tso_tso_cards` (
+  `id` int(11) NOT NULL,
+  `description` varchar(90) NOT NULL,
+  `price` int(11) NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+
+--
+-- Gegevens worden geëxporteerd voor tabel `tso_tso_cards`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `tso_tso_children`
+--
+
+CREATE TABLE IF NOT EXISTS `tso_tso_children` (
+  `id` int(11) NOT NULL,
+  `lead_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `school_id` int(11) DEFAULT NULL,
+  `name` varchar(50) NOT NULL,
+  `groep` tinyint(2) DEFAULT NULL,
+  `card` varchar(50) DEFAULT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
+--
+-- Gegevens worden geëxporteerd voor tabel `tso_tso_children`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `tso_tso_schools`
+--
+
+CREATE TABLE IF NOT EXISTS `tso_tso_schools` (
+  `id` int(11) NOT NULL,
+  `name` varchar(80) NOT NULL,
+  `email` varchar(60) DEFAULT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+
+--
+-- Gegevens worden geëxporteerd voor tabel `tso_tso_schools`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `tso_tso_submissions`
+--
+
+CREATE TABLE IF NOT EXISTS `tso_tso_submissions` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `child_id` int(11) NOT NULL,
+  `school_id` int(11) NOT NULL,
+  `groep` char(4) NOT NULL,
+  `card` varchar(60) NOT NULL,
+  `price` int(5) NOT NULL,
+  `bank` varchar(20) NOT NULL,
+  `ec` varchar(64) NOT NULL,
+  `trxid` varchar(64) NOT NULL,
+  `ip` varchar(32) NOT NULL,
+  `payment_status` tinyint(1) NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+
+--
+-- Tabelstructuur voor tabel `tso_tso_users`
+--
+
+CREATE TABLE IF NOT EXISTS `tso_tso_users` (
+  `id` int(11) NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `password` varchar(90) NOT NULL,
+  `name_father` varchar(40) DEFAULT NULL,
+  `phone_father` varchar(12) DEFAULT NULL,
+  `name_mother` varchar(40) DEFAULT NULL,
+  `phone_mother` varchar(12) DEFAULT NULL,
+  `address` varchar(60) NOT NULL,
+  `postalcode` varchar(8) NOT NULL,
+  `city` varchar(70) NOT NULL,
+  `iban` varchar(20) NOT NULL,
+  `phone_unreachable` varchar(12) NOT NULL,
+  `relation_child` varchar(50) NOT NULL,
+  `name_doc` varchar(40) NOT NULL,
+  `phone_doc` varchar(12) NOT NULL,
+  `address_doc` varchar(40) NOT NULL,
+  `city_doc` varchar(40) NOT NULL,
+  `name_dentist` varchar(40) NOT NULL,
+  `phone_dentist` varchar(12) NOT NULL,
+  `address_dentist` varchar(40) NOT NULL,
+  `city_dentist` varchar(40) NOT NULL,
+  `days_care` varchar(255) NOT NULL,
+  `ip` varchar(32) NOT NULL,
+  `verified` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `hash` char(32) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
