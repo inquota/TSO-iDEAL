@@ -18,7 +18,7 @@ $functionsClass = new Functions();
 $targetpay= array(
 
 	// RTLO / Layout code
-	'rtlo'				=> 	75941, 
+	'rtlo'				=> 	$settings->targetpay_rtlo, 
 	
 	// Set return url from your website. Make sure this route exists in your routes.php
 	'return_url'		=>	'/tso-ideal-check.php',
@@ -36,6 +36,7 @@ $table_children = $wpdb->prefix . 'tso_children';
 $table_cards = $wpdb->prefix . 'tso_cards';
 $table_schools = $wpdb->prefix . 'tso_schools';
 $table_users = $wpdb->prefix . 'tso_users';
+$table_settings = $wpdb->prefix . 'tso_settings';
 
 $trxid = $_GET['trxid'];
 $ec = $_GET['ec'];		
@@ -49,6 +50,9 @@ $banks = $oIdeal->getBanks();
 // check if ec and trxid already exists in DB
 $transactionCheck = $wpdb->get_row( "SELECT * FROM {$table_submissions} WHERE ec = '".$ec."' AND trxid ='".$trxid."'", OBJECT );
 
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
+
 // get child
 $childObject = $wpdb->get_row( "SELECT * FROM {$table_children} WHERE id =".$session_data['child_id'], OBJECT );
 	
@@ -59,31 +63,10 @@ $cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE id =".$session
 $userObject = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id =".$session_data['user_id'], OBJECT );
 
 // get school
-$schooldObject = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id =".$session_data['school'], OBJECT );
+$schooldObject = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id =".$userObject->school_id, OBJECT );
 
 if ($oIdeal->validatePayment($trxid, 1,1) == true) {
-	
-	// check if child has a school
-	if($childObject->school_id == null){
-		// save
-		$wpdb->update( 
-		$table_children, 
-				array( 
-					'school_id' => $session_data['school'],
-				), 
-				array( 'id' => $session_data['child_id'] )
-			);
-	}elseif($childObject->school_id != $session_data['school']){
-		// save
-		$wpdb->update( 
-		$table_children, 
-				array( 
-					'school_id' => $session_data['school'],
-				), 
-				array( 'id' => $session_data['child_id'] )
-			);
-	}	
-	
+		
 	// check if child has a group
 	if($childObject->groep == null){
 		// save
@@ -121,7 +104,6 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$wpdb->insert($table_submissions, array(
 		   "user_id" => $session_data['user_id'],
 		   "child_id" => $session_data['child_id'],
-		   "school_id" => $session_data['school'],
 		   "groep" => $session_data['groep'],
 		   "card" => $cardObject->description,
 		   "price" => $cardObject->price,
@@ -223,7 +205,14 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$functionsClass->SendMail('Strippenkaart afgenomen', $userObject->email, $message_client);
 		
 		if($schooldObject->email!=null){
-			$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);	
+			$emails2=explode(',',$schooldObject->email);
+
+			// if school has multiple emails use bcc
+			if(count($emails2) > 1 && is_array($emails2)){
+				$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school, $schooldObject->email);
+			}else{
+				$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);	
+			}
 		}
 		
 	}
@@ -236,7 +225,6 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$wpdb->insert($table_submissions, array(
 		   "user_id" => $session_data['user_id'],
 		   "child_id" => $session_data['child_id'],
-		   "school_id" => $session_data['school'],
 		   "groep" => $session_data['groep'],
 		   "card" => $cardObject->description,
 		   "price" => $cardObject->price,

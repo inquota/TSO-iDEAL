@@ -3,9 +3,10 @@
 Template Name: TSO - Card - Add (Strippentkaart afnemen)
 */
 global $wpdb;
+
 $table_children = $wpdb->prefix . 'tso_children';
 $table_cards = $wpdb->prefix . 'tso_cards';
-$table_schools = $wpdb->prefix . 'tso_schools';
+$table_settings = $wpdb->prefix . 'tso_settings';
 
 // check if user is logged in
 if($_SESSION['user']==null){
@@ -25,14 +26,14 @@ if(empty($urlparts[3])){
  
 $result = $wpdb->get_row( "SELECT * FROM {$table_children} WHERE id = ".$urlparts[3], OBJECT );
 
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
+
 // groepen
 $groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a','5b','6','6a','6b','7','7a','7b','8','8a','8b');
 
 // card / strippenkaart
 $cards = $wpdb->get_results("SELECT * FROM {$table_cards}"); 
-
-// get schools
-$schools = $wpdb->get_results("SELECT * FROM {$table_schools} ORDER BY name ASC"); 
  
 $error= ''; 
 $error_flag = true;
@@ -47,14 +48,8 @@ if(isset($_POST['submit'])){
 	$group = $_POST['group'];
 	$card = $_POST['card'];
 	$bank = $_POST['bank'];
-	$school = $_POST['school'];
 	
 	$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE id = ".$card, OBJECT );
-	
-	if(empty($school)){
-		$error .= '<strong>U heeft geen school gekozen</strong><br />';
-		$error_flag = false;
-	}
 	
 	if(empty($group)){
 		$error .= '<strong>U heeft geen groep gekozen</strong><br />';
@@ -78,7 +73,7 @@ if(isset($_POST['submit'])){
 		$targetpay= array(
 		
 			// RTLO / Layout code
-			'rtlo'				=> 	75941, 
+			'rtlo'				=> 	$settings->targetpay_rtlo, 
 			
 			// Set return url from your website. Make sure this route exists in your routes.php
 			'return_url'		=>	'/tso-ideal-check.php',
@@ -115,7 +110,7 @@ if(isset($_POST['submit'])){
 		# this will be the bank url that will rederect to the bank.
 		$strBankURL = $aReturn[1];
 		
-		$data=array('groep'=>$group, 'bank'=>$bank, 'card'=>$card, 'school'=> $school, 'child_id'=> $urlparts[3], 'user_id'=>$sessionUser->id);
+		$data=array('groep'=>$group, 'bank'=>$bank, 'card'=>$card, 'child_id'=> $urlparts[3], 'user_id'=>$sessionUser->id);
 		
 		$_SESSION['data'] = $data;
 		

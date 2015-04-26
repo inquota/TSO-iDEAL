@@ -40,6 +40,7 @@ function tso_admin_actions() {
 	add_submenu_page( 'tso', 'Schools', 'Schools', 'manage_options', 'schools', 'tso_schools');
 	add_submenu_page( 'tso', 'Children', 'Children', 'manage_options', 'children', 'tso_children');
 	add_submenu_page( 'tso', 'Cards', 'Cards', 'manage_options', 'cards', 'tso_cards');
+	add_submenu_page( 'tso', 'Settings', 'Settings', 'manage_options', 'settings', 'tso_settings');
 }
 
 add_action('admin_menu', 'tso_admin_actions');
@@ -62,7 +63,11 @@ function tso_submissions() {
 
 function tso_children() {	  
     include('tso_children.php');  
-} 
+}
+
+function tso_settings() {	  
+    include('tso_settings.php');  
+}  
 
 // Gravityforms hook
 add_action('gform_after_submission', 'post_to_third_party', 10, 2);
@@ -105,5 +110,54 @@ function post_to_third_party($entry, $form) {
 	   "created_at" => date('Y-m-d H:i:s'),
 	   "hash" => $hash,
 	));
+}
+
+add_filter( 'gform_pre_render', 'populate_dropdown' );
+
+//Note: when changing drop down values, we also need to use the gform_pre_validation so that the new values are available when validating the field.
+add_filter( 'gform_pre_validation', 'populate_dropdown' );
+
+//Note: when changing drop down values, we also need to use the gform_admin_pre_render so that the right values are displayed when editing the entry.
+add_filter( 'gform_admin_pre_render', 'populate_dropdown' );
+
+//Note: this will allow for the labels to be used during the submission process in case values are enabled
+add_filter( 'gform_pre_submission_filter', 'populate_dropdown' );
+function populate_dropdown( $form ) {
+		
+	global $wpdb;
+	
+	$table_schools = $wpdb->prefix . 'tso_schools';
+	$table_settings = $wpdb->prefix . 'tso_settings';
+	
+	// get settings
+	$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
+	
+    //only populating drop down for form id 1
+    if ( $form['id'] != $settings->form_id ) {
+       return $form;
+    }
+
+	// get schools
+	$schools = $wpdb->get_results("SELECT * FROM {$table_schools} ORDER BY name ASC");
+	
+    //Creating drop down item array.
+    $items = array();
+
+    //Adding initial blank value.
+    $items[] = array( 'text' => '', 'value' => '' );
+
+    //Adding post titles to the items array
+    foreach ( $schools as $school ) {
+        $items[] = array( 'value' => $school->id, 'text' => $school->name );
+    }
+
+    //Adding items to field id 8. Replace 8 with your actual field id. You can get the field id by looking at the input name in the markup.
+    foreach ( $form['fields'] as &$field ) {
+        if ( $field['id'] == $settings->field_id ) {            
+            $field['choices'] = $items;
+        }
+    }
+
+    return $form;
 }
 	

@@ -2,6 +2,7 @@
 	global $wpdb;
 	$table_children = $wpdb->prefix . 'tso_children';
 	$table_schools = $wpdb->prefix . 'tso_schools';
+	$table_users = $wpdb->prefix . 'tso_users';
 		
 	$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
 
@@ -11,7 +12,19 @@
 	$num_of_pages = ceil( $total / $limit );
 	
 	$items = $wpdb->get_results( 
-		"SELECT C.id, C.name AS name_child, S.name AS name_school, C.groep, C.created_at FROM {$table_children} AS C LEFT JOIN {$table_schools} AS S ON (S.id=C.school_id) ORDER BY C.id DESC"
+		"SELECT 
+				Child.id, 
+				Child.name AS name_child, 
+				School.name AS name_school, 
+				Child.groep, 
+				Child.created_at 
+		FROM 
+			{$table_children} AS Child
+		LEFT JOIN {$table_users} AS User ON (Child.user_id=User.id) 
+		LEFT JOIN {$table_schools} AS School ON (School.id=User.school_id) 
+		ORDER BY 
+			Child.id 
+		DESC"
 	);
 
 if(isset($_POST['action_delete'])) :

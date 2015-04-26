@@ -24,14 +24,18 @@ class Functions {
 	    return implode($pass); //turn the array into a string
 	}
 	
-	public function SendMail($subject, $to, $message){
+	public function SendMail($subject, $to, $message, $bcc=null){
 
 		// To send HTML mail, the Content-type header must be set
 		$headers  = 'MIME-Version: 1.0' . "\r\n";
 		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 		
 		// Additional headers
-		$headers .= 'From: TSO <info@tso-inquota-dev.nl>' . "\r\n";
+		$headers .= 'From: TSO <noreply@'.$_SERVER['HTTP_HOST'].'>' . "\r\n";
+		
+		if($bcc!=null){
+			$headers .= 'Bcc: '.$bcc . "\r\n";
+		}
 		
 		// Mail it
 		mail($to, $subject, $message, $headers);

@@ -34,6 +34,7 @@ endif;
 
             <th id="cb" class="manage-column column-cb check-column" scope="col"></th> 
 			<th class="manage-column column-columnname" scope="col">Id</th>
+			<th class="manage-column column-columnname" scope="col">School</th>
 			<th class="manage-column column-columnname" scope="col">Father</th>
 			<th class="manage-column column-columnname" scope="col">Mother</th>
 			<th class="manage-column column-columnname" scope="col">E-mail</th>
@@ -49,6 +50,7 @@ endif;
 
             <th class="manage-column column-cb check-column" scope="col"></th>
 			<th class="manage-column column-columnname" scope="col">Id</th>
+			<th class="manage-column column-columnname" scope="col">School</th>
 			<th class="manage-column column-columnname" scope="col">Father</th>
 			<th class="manage-column column-columnname" scope="col">Mother</th>
 			<th class="manage-column column-columnname" scope="col">E-mail</th>
