@@ -53,6 +53,7 @@ endif;
 			<th class="manage-column column-columnname" scope="col">Name</th>
 			<th class="manage-column column-columnname" scope="col">E-mail</th>
 			<th class="manage-column column-columnname" scope="col">Created at</th>
+			<th class="manage-column column-columnname" scope="col">Actions</th>
     </tr>
     </thead>
 
@@ -64,6 +65,7 @@ endif;
 			<th class="manage-column column-columnname" scope="col">Name</th>
 			<th class="manage-column column-columnname" scope="col">E-mail</th>
 			<th class="manage-column column-columnname" scope="col">Created at</th>
+			<th class="manage-column column-columnname" scope="col">Actions</th>
 
     </tr>
     </tfoot>
@@ -76,6 +78,7 @@ endif;
 			<td class="column-columnname"><?php echo $item->name; ?></td>
 			<td class="column-columnname"><?php echo $item->email; ?></td>
 			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->created_at)); ?></td>
+			<td class="column-columnname"><a href="#">Edit</a></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
@@ -109,7 +112,7 @@ if ( $page_links ) {
 		</p>
 		
 		<p>
-			E-mail: <input type="email" name="email" required="required" />
+			E-mail: <input type="email" name="email" required="required" /> use multiple e-mails with comma. e.g. email1@email.com,email2@email.com
 		</p>
 		
 		<p>
