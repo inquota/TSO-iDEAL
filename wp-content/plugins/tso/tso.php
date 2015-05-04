@@ -40,6 +40,7 @@ function tso_admin_actions() {
 	add_submenu_page( 'tso', 'Schools', 'Schools', 'manage_options', 'schools', 'tso_schools');
 	add_submenu_page( 'tso', 'Children', 'Children', 'manage_options', 'children', 'tso_children');
 	add_submenu_page( 'tso', 'Cards', 'Cards', 'manage_options', 'cards', 'tso_cards');
+	add_submenu_page( 'tso', 'Statistics', 'Statistics', 'manage_options', 'statistics', 'tso_statistics');
 	add_submenu_page( 'tso', 'Settings', 'Settings', 'manage_options', 'settings', 'tso_settings');
 }
 
@@ -55,6 +56,10 @@ function tso_cards(){
 
 function tso_users(){
 	include('tso_users.php');  
+}
+
+function tso_statistics(){
+	include('tso_statistics.php');  
 }
 
 function tso_submissions() {	  

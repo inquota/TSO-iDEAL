@@ -7,11 +7,15 @@ global $wpdb;
 
 $table_children = $wpdb->prefix . 'tso_children';
 $table_schools = $wpdb->prefix . 'tso_schools';
+$table_users = $wpdb->prefix . 'tso_users';
 $table_cards = $wpdb->prefix . 'tso_cards';
+$table_settings = $wpdb->prefix . 'tso_settings';
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 
 // check if user is logged in
 if($_SESSION['user']==null){
-	echo '<meta http-equiv="refresh" content="0; URL=/inloggen/">';
+	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
 }
 
 $sessionUser = $_SESSION['user'];
@@ -29,18 +33,21 @@ $results = $wpdb->get_results( "SELECT
 							FROM 
 								{$table_children} AS Child 
 							LEFT JOIN 
-								{$table_schools} AS School ON (Child.school_id=School.id)
+								{$table_users} AS User ON (Child.user_id=User.id)
+							LEFT JOIN 
+								{$table_schools} AS School ON (User.school_id=School.id)
 							LEFT JOIN 
 								{$table_cards} AS Card ON (Child.card=Card.id)	
 							WHERE 
 								user_id = ".$sessionUser->id . "", OBJECT );
+
 if(isset($_GET['action']) && $_GET['action']=='action'){
 	unset($_SESSION['user']);
 	session_destroy();
-	echo '<meta http-equiv="refresh" content="0; URL=/inloggen/">';
+	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
 }								
 ?>
-<a href="#">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
+<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
 <hr />	        	
 <?php if(!$results) : ?>
 	U heeft geen kinderen toegevoegd	
