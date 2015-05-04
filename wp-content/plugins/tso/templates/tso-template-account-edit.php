@@ -85,7 +85,7 @@ if(isset($_POST['submit'])){
 						'name_dentist'=>$_POST['name_dentist'],
 						'phone_dentist'=>$_POST['phone_dentist'],
 						'address_dentist'=>$_POST['address_dentist'],
-						'city_dentist'=>$_POST['city_dentist'], 
+						'city_dentist'=>$_POST['city_dentist'],
 						'days_care'=>$_POST['days_care'], 
 				), 
 				array( 'id' => $sessionUser->id )
@@ -104,25 +104,29 @@ if(isset($_POST['submit'])){
 			width: 200px;
 		}
 	</style>
-	        	<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
-	        	<form method="POST">
-	        		<?php if(isset($error)) {
-	        			echo $error;
-	        		}?>
-	        		<table style="padding: 5px;">
-	        		
-	        
-	        		<?php foreach ($fields as $key => $value) : ?>
-					
-	        			<tr>
-	        				<td><?php echo $key; ?></td>
-	        				<td><input type="text" name="<?php echo $value; ?>" required="required" value="<?php echo $user->$value; ?>" /></td>
-	        			</tr>
-	        			
-	        		<?php endforeach; ?>
-	        	
-	        		</table>
-	        		<button type="submit" name="submit" class="">Profiel aanpassen</button>
-	        	</form>
+	
+	<div id="tso-menu">
+		<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
+	</div>
+	
+	<form method="POST">
+		<?php if(isset($error)) {
+			echo $error;
+		}?>
+		<table style="padding: 5px;" id="account_edit">
+		
+
+		<?php foreach ($fields as $key => $value) : ?>
+		
+			<tr>
+				<td><?php echo $key; ?></td>
+				<td><input type="text" name="<?php echo $value; ?>" required="required" value="<?php echo $user->$value; ?>" /></td>
+			</tr>
+			
+		<?php endforeach; ?>
+	
+		</table>
+		<button type="submit" name="submit" class="">Profiel aanpassen</button>
+	</form>
 	        	
 	 

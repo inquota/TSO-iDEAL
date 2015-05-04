@@ -67,7 +67,7 @@ if(isset($_GET['action']) && $_GET['action']=='logout'){
 			<td style="padding: 5px;"><?php echo $item->name_child; ?></td>
 			<td style="padding: 5px;"><?php if($item->groep==null){ echo 'Onbekend'; }else{ echo $item->groep; }; ?></td>
 			<td style="padding: 5px;"><?php echo $item->description; ?></td>
-			<td style="padding: 5px;"><a href="/strippenkaart/strippenkaart-toevoegen/<?php echo $item->id; ?>">Nieuwe strippenkaart afnemen</a></td>
+			<td style="padding: 5px;"><a href="<?php echo $settings->url_card_add; ?><?php echo $item->id; ?>">Nieuwe strippenkaart afnemen</a></td>
 		</tr>
 	<?php endforeach; ?>
 	</table>

@@ -142,7 +142,7 @@ if(isset($_POST['submit'])){
 						'phone_dentist'=>$_POST['phone_dentist'],
 						'address_dentist'=>$_POST['address_dentist'],
 						'city_dentist'=>$_POST['city_dentist'], 
-						'days_care'=>$_POST['days_care'],
+						'days_care'=>implode(',', $_POST['days_care']),
 						'school_id'=>$_POST['school'], 
 						"ip" => $_SERVER['REMOTE_ADDR'],
 	   					"created_at" => date('Y-m-d H:i:s'),
