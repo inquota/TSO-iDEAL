@@ -3,63 +3,64 @@
 Template Name: TSO - Login
 */
 
-get_header(); 
+global $wpdb;
 
-//require 'custom/password.php';
+$table_users = $wpdb->prefix . 'tso_users';
+
+// check if user is already logged in
+if(isset($_SESSION['user'])){
+	echo '<meta http-equiv="refresh" content="0; URL=/strippenkaart">';
+}
 
 if(isset($_POST['login'])){
 	
-	//extract($_POST);
+	$passwordClass = new Password();
+	
 	$email = $_POST['email'];
 	$password = $_POST['password'];
 	
-	$user = $wpdb->get_row("SELECT * FROM clients WHERE email = '".$email."'");
+	$user = $wpdb->get_row("SELECT * FROM {$table_users} WHERE email = '".$email."'");
 	
 	if($user){
 	
-		if(validate_password($password, $user->password)){
+		if($passwordClass->validate_password($password, $user->password)){
 			$_SESSION['user'] = $user;
-			//echo '<meta http-equiv="refresh" content="0; URL=http://quenchdrinks.nl/?page_id=2321">';
+			echo '<meta http-equiv="refresh" content="0; URL=/strippenkaart">';
 		}else{
 			echo 'invalid';
 		}	
 	}
-	
-	
 }
-
-if ( have_posts() ) : while ( have_posts() ) : the_post();
 ?>
-	<div class="about-us-wrapper" style="background: #FFF;" data-stellar-background-ratio="0.5">
-	    <div class="container">
-	        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	        	
-	        	<?php echo the_content(); ?>
-	        	
-	        	<form method="POST">
-				<table>
-					<tr>
-						<td>E-mail</td>
-						<td><input type="email" name="email" /></td>
-					</tr>
-					<tr>
-						<td>Wachtwoord</td>
-						<td><input type="password" name="password" /></td>
-					</tr>
-				</table>
-				
-					<button type="submit" name="login" class="">Inloggen</button>
-				
-			
-				</form>
-				
-				
-	        </div>
-	    </div>
-	</div>
-	
-	<div style="clear:both;"></div>
 
-<?php endwhile; endif; ?>
+<form method="POST">
+	<table>
+		<tr>
+			<td>E-mail</td>
+			<td><?php if(isset($_GET['email'])) :
+			?>
+			<input type="email" name="email" value="<?= $_GET['email'] ?>" />
+			<?php else :
+			?>
+			<input type="email" name="email" />
+			<?php endif;
+			?></td>
+		</tr>
+		<tr>
+			<td>Wachtwoord</td>
+			<td>
+			<input type="password" name="password" />
+			</td>
+		</tr>
+	</table>
 
-<?php get_footer(); ?>
+	<button type="submit" name="login" class="">
+		Inloggen
+	</button>
+	<p>
+		<a href="/inschrijven/">Nieuwe gebruiker TSO</a>
+	</p>
+
+</form>
+				
+		

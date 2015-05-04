@@ -69,95 +69,12 @@ function tso_settings() {
     include('tso_settings.php');  
 }  
 
-// Gravityforms hook
-add_action('gform_after_submission', 'post_to_third_party', 10, 2);
-function post_to_third_party($entry, $form) {
-	
-	global $wpdb;
-	
-	$table_users = $wpdb->prefix . 'tso_users';
-		
-	$passwordClass = new Password();
-	$functionsClass = new Functions();
-	
-	$password_readable = $functionsClass->randomPassword();
-	$password_hash = $passwordClass->create_hash($password_readable);
-	$hash = $functionsClass->RandomHash();
-	
-	$email = $entry[2];
-	
-	/**
-	 * Compose Mail
-	 */
-	$message ='Beste,<br /><br />';
-	$message .='Inlog: '.$email . '<br />';
-	$message .='Wachtwoord: '.$password_readable . '<br />';
-	$message .='Klik hier om uw account te bevestigen: <a href="http://'.$_SERVER['HTTP_HOST'].'/tso-verify.php?hash='.$hash.'">activeren</a><br />';
-	
-	$functionsClass->SendMail('TSO | Account', $email, $message);
-	
-	/**
-	 * Insert into database
-	 */
-	$wpdb->insert($table_users, array(
-	   "email" => $email,
-	   "password" => $password_hash,
-	   "name" => 'Jarah de Jong',
-	   "address" => 'Saffierstraat 23 A-1',
-	   "postalcode" => '3051XT',
-	   "city" => 'Rotterdam',
-	   "ip" => $_SERVER['REMOTE_ADDR'],
-	   "created_at" => date('Y-m-d H:i:s'),
-	   "hash" => $hash,
-	));
+function load_scripts() {
+	wp_enqueue_script(
+		'tso-script',
+		plugins_url() . '/tso/js/script.js',
+		array( 'jquery' )
+	);
 }
 
-add_filter( 'gform_pre_render', 'populate_dropdown' );
-
-//Note: when changing drop down values, we also need to use the gform_pre_validation so that the new values are available when validating the field.
-add_filter( 'gform_pre_validation', 'populate_dropdown' );
-
-//Note: when changing drop down values, we also need to use the gform_admin_pre_render so that the right values are displayed when editing the entry.
-add_filter( 'gform_admin_pre_render', 'populate_dropdown' );
-
-//Note: this will allow for the labels to be used during the submission process in case values are enabled
-add_filter( 'gform_pre_submission_filter', 'populate_dropdown' );
-function populate_dropdown( $form ) {
-		
-	global $wpdb;
-	
-	$table_schools = $wpdb->prefix . 'tso_schools';
-	$table_settings = $wpdb->prefix . 'tso_settings';
-	
-	// get settings
-	$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
-	
-    //only populating drop down for form id 1
-    if ( $form['id'] != $settings->form_id ) {
-       return $form;
-    }
-
-	// get schools
-	$schools = $wpdb->get_results("SELECT * FROM {$table_schools} ORDER BY name ASC");
-	
-    //Creating drop down item array.
-    $items = array();
-
-    //Adding initial blank value.
-    $items[] = array( 'text' => '', 'value' => '' );
-
-    //Adding post titles to the items array
-    foreach ( $schools as $school ) {
-        $items[] = array( 'value' => $school->id, 'text' => $school->name );
-    }
-
-    //Adding items to field id 8. Replace 8 with your actual field id. You can get the field id by looking at the input name in the markup.
-    foreach ( $form['fields'] as &$field ) {
-        if ( $field['id'] == $settings->field_id ) {            
-            $field['choices'] = $items;
-        }
-    }
-
-    return $form;
-}
-	
+add_action( 'wp_enqueue_scripts', 'load_scripts' );
