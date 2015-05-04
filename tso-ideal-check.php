@@ -104,7 +104,8 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$wpdb->insert($table_submissions, array(
 		   "user_id" => $session_data['user_id'],
 		   "child_id" => $session_data['child_id'],
-		   "groep" => $session_data['groep'],
+		   "school_id" => $userObject->school_id,
+		   "groep" => $childObject->groep,
 		   "card" => $cardObject->description,
 		   "price" => $cardObject->price,
 		   "bank" => $session_data['bank'],
@@ -155,7 +156,7 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$message_client .='Strippenkaart nummer: '.$last_insert_id.'<br />';
 		$message_client .='School: '.$schooldObject->name.'<br />';
 		$message_client .='Kind: '.$childObject->name.'<br />';
-		$message_client .='Groep: '.$session_data['groep'].'<br />';
+		$message_client .='Groep: '.$childObject->groep.'<br />';
 		$message_client .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_client .='<h2>Betaalgegevens</h2>';
 		$message_client .='Betaald: Ja<br />';
@@ -170,7 +171,7 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$message_school .='Er is een strippenkaart afgenomen:<br /><br />';
 		$message_school .='Strippenkaart nummer: '.$last_insert_id.'<br />';
 		$message_school .='Kind: '.$childObject->name.'<br />';
-		$message_school .='Groep: '.$session_data['groep'].'<br />';
+		$message_school .='Groep: '.$childObject->groep.'<br />';
 		$message_school .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_school ='<h2>Gegevens ouders</h2>';
 		
@@ -225,7 +226,8 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$wpdb->insert($table_submissions, array(
 		   "user_id" => $session_data['user_id'],
 		   "child_id" => $session_data['child_id'],
-		   "groep" => $session_data['groep'],
+		   "school_id" => $userObject->school_id,
+		   "groep" => $childObject->groep,
 		   "card" => $cardObject->description,
 		   "price" => $cardObject->price,
 		   "bank" => $session_data['bank'],
@@ -240,7 +242,7 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$message_client .='Helaas, het afnemen van een strippenkaart is helaas niet gelukt. Probeert u het nogmaals. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
 		$message_client .='School: '.$schooldObject->name.'<br />';
 		$message_client .='Kind: '.$childObject->name.'<br />';
-		$message_client .='Groep: '.$session_data['groep'].'<br />';
+		$message_client .='Groep: '.$childObject->groep.'<br />';
 		$message_client .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_client .='<h2>Betaalgegevens</h2>';
 		$message_client .='Betaald: <strong>Nee</strong><br />';

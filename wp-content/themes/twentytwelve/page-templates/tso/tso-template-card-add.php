@@ -7,10 +7,12 @@ global $wpdb;
 $table_children = $wpdb->prefix . 'tso_children';
 $table_cards = $wpdb->prefix . 'tso_cards';
 $table_settings = $wpdb->prefix . 'tso_settings';
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 
 // check if user is logged in
 if($_SESSION['user']==null){
-	echo '<meta http-equiv="refresh" content="0; URL=/inloggen/">';
+	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
 }
 
 $sessionUser = $_SESSION['user'];
@@ -21,16 +23,10 @@ $sessionUser = $_SESSION['user'];
 $urlparts = explode('/',$_SERVER['REQUEST_URI']);
 
 if(empty($urlparts[3])){
-	echo '<meta http-equiv="refresh" content="0; URL=/strippenkaart/">';
+	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_card_overview.'">';
 } 
  
 $result = $wpdb->get_row( "SELECT * FROM {$table_children} WHERE id = ".$urlparts[3], OBJECT );
-
-// get settings
-$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
-
-// groepen
-$groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a','5b','6','6a','6b','7','7a','7b','8','8a','8b');
 
 // card / strippenkaart
 $cards = $wpdb->get_results("SELECT * FROM {$table_cards}"); 
@@ -45,16 +41,10 @@ if(isset($_SESSION['data'])){
 if(isset($_POST['submit'])){
 	
 	//extract($_POST);
-	$group = $_POST['group'];
 	$card = $_POST['card'];
 	$bank = $_POST['bank'];
 	
 	$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE id = ".$card, OBJECT );
-	
-	if(empty($group)){
-		$error .= '<strong>U heeft geen groep gekozen</strong><br />';
-		$error_flag = false;
-	}
 	
 	if(empty($card)){
 		$error .= '<strong>U heeft geen strippenkaart gekozen</strong><br />';
@@ -93,7 +83,7 @@ if(isset($_POST['submit'])){
 		$oIdeal->setIdealissuer($bank);
 		
 		# Set ideal description
-		$oIdeal->setIdealDescription($cardObject->description);
+		$oIdeal->setIdealDescription($cardObject->description_short);
 		
 		# Set return url, wich should return on succes
 		$oIdeal->setIdealReturnUrl('http://' . $_SERVER['HTTP_HOST'] . $targetpay['return_url']);
@@ -110,7 +100,7 @@ if(isset($_POST['submit'])){
 		# this will be the bank url that will rederect to the bank.
 		$strBankURL = $aReturn[1];
 		
-		$data=array('groep'=>$group, 'bank'=>$bank, 'card'=>$card, 'child_id'=> $urlparts[3], 'user_id'=>$sessionUser->id);
+		$data=array('bank'=>$bank, 'card'=>$card, 'child_id'=> $urlparts[3], 'user_id'=>$sessionUser->id);
 		
 		$_SESSION['data'] = $data;
 		
@@ -122,14 +112,7 @@ if(isset($_POST['submit'])){
 
 
 }
-
-if ( have_posts() ) : while ( have_posts() ) : the_post();
 ?>
-	<div class="about-us-wrapper" style="background: #FFF;" data-stellar-background-ratio="0.5">
-	    <div class="container">
-	        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	        	
-	        	<?php echo the_content(); ?>
 	        	
 	        	<form method="POST">
 	        		<?php if(isset($error)) {
@@ -141,39 +124,7 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 	        				<td>Naam</td>
 	        				<td><?php echo $result->name; ?></td>
 	        			</tr>
-	        			
-						<tr>
-	        				<td>School</td>
-	        				<td>
-							<?php if(!isset($schools) || $schools == null ) : ?>
-								<span style="color: #FF0000;">Er zijn geen scholen beschikbaar. Neem contact op met de beheerder.</span>
-							<?php else : ?>
-	        				<select name="school">
-	        					<option selected="selected" value="">--- Maak een keuze ----</option>
-	        					<?php foreach($schools as $school) : ?>
-	        						<option value="<?php echo $school->id; ?>"><?php echo $school->name; ?></option>
-	        					<?php endforeach; ?>
-	        				</select>
-	        				<?php endif; ?>
-	        				</td>
-	        			</tr>
-	        			
-	        			<tr>
-	        				<td>Groep</td>
-	        				<td>
-							<?php if(!isset($groups) || $groups == null ) : ?>
-								<span style="color: #FF0000;">Er zijn geen groepen beschikbaar. Neem contact op met de beheerder.</span>
-							<?php else : ?>
-	        				<select name="group">
-	        					<option selected="selected" value="">--- Maak een keuze ----</option>
-	        					<?php foreach($groups as $group) : ?>
-	        						<option value="<?php echo $group; ?>"><?php echo $group; ?></option>
-	        					<?php endforeach; ?>
-	        				</select>
-	        				<?php endif; ?>
-	        				</td>
-	        			</tr>
-	        			
+	        				        				        			
 						<tr>
 	        				<td>Strippenkaart</td>
 	        				<td>
@@ -203,10 +154,3 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 	        </div>
 	    </div>
 	</div>
-	
-	<div style="clear:both;"></div>
-
-<?php endwhile; endif; ?>
-
-
-<?php get_footer('customer-area'); ?>
