@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `tso_tso_cards` (
   `id` int(11) NOT NULL,
   `description` varchar(90) NOT NULL,
+  `description_short` varchar(90) NOT NULL,
   `price` int(11) NOT NULL,
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
@@ -9,6 +10,10 @@ CREATE TABLE IF NOT EXISTS `tso_tso_cards` (
 -- Gegevens worden geëxporteerd voor tabel `tso_tso_cards`
 --
 
+INSERT INTO `tso_tso_cards` (`id`, `description`, `description_short`, `price`, `created_at`) VALUES
+(1, '5 strippen &euro; 12,50', '5 strippen', 1250, '2015-04-23 20:21:37'),
+(2, '10 strippen &euro; 25,00', '10 strippen', 2500, '2015-04-23 20:21:44'),
+(3, '20 strippen &euro; 50,00', '20 strippen', 500, '2015-04-23 20:21:53');
 
 -- --------------------------------------------------------
 
@@ -18,19 +23,22 @@ CREATE TABLE IF NOT EXISTS `tso_tso_cards` (
 
 CREATE TABLE IF NOT EXISTS `tso_tso_children` (
   `id` int(11) NOT NULL,
-  `lead_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `school_id` int(11) DEFAULT NULL,
   `name` varchar(50) NOT NULL,
-  `groep` tinyint(2) DEFAULT NULL,
+  `groep` varchar(2) DEFAULT NULL,
   `card` varchar(50) DEFAULT NULL,
   `created_at` datetime NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 
 --
 -- Gegevens worden geëxporteerd voor tabel `tso_tso_children`
 --
 
+INSERT INTO `tso_tso_children` (`id`, `user_id`, `name`, `groep`, `card`, `created_at`) VALUES
+(1, 3, 'Jarah', '6', '1', '2015-04-23 00:00:00'),
+(2, 3, 'Christel', '6', '2', '2015-04-23 00:00:00'),
+(17, 9, 'Kind 1', '1', NULL, '2015-05-04 00:07:41'),
+(18, 9, 'Kind 2', '2a', NULL, '2015-05-04 00:07:41');
 
 -- --------------------------------------------------------
 
@@ -48,6 +56,46 @@ CREATE TABLE IF NOT EXISTS `tso_tso_schools` (
 --
 -- Gegevens worden geëxporteerd voor tabel `tso_tso_schools`
 --
+
+INSERT INTO `tso_tso_schools` (`id`, `name`, `email`, `created_at`) VALUES
+(1, 'Aanloop', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-21 00:00:00'),
+(2, 'De Meander', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-21 00:00:00'),
+(3, 'Montessoirischool', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-20 22:41:59'),
+(5, 'Daltonschool', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-20 22:42:49'),
+(6, 'Ekkelhof', 'remcovandeberg@ziggo.nl', '2015-04-23 17:09:34'),
+(7, 'De linkerakkers', 'info@klusjemelden.nl', '2015-04-23 17:09:53'),
+(8, 'School 75', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-23 17:10:04'),
+(9, 'De Poolster', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-23 17:10:16'),
+(10, 'De Weiert', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-23 17:10:32'),
+(11, 'De Westhoek', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-23 17:10:43'),
+(12, 'De Zweng', 'remcovandeberg@ziggo.nl,info@klusjemelden.nl', '2015-04-23 17:10:55');
+
+-- --------------------------------------------------------
+
+--
+-- Tabelstructuur voor tabel `tso_tso_settings`
+--
+
+CREATE TABLE IF NOT EXISTS `tso_tso_settings` (
+  `id` int(11) NOT NULL,
+  `targetpay_rtlo` int(11) DEFAULT NULL COMMENT 'TargetPay RTLO',
+  `form_id` int(11) DEFAULT NULL COMMENT 'Load schools for form id',
+  `field_id` int(11) DEFAULT NULL COMMENT 'Load schools for field id',
+  `url_login` varchar(90) DEFAULT NULL,
+  `url_register` varchar(90) DEFAULT NULL,
+  `url_card_overview` varchar(90) DEFAULT NULL,
+  `url_card_add` varchar(90) DEFAULT NULL,
+  `url_payment_done` varchar(90) DEFAULT NULL,
+  `url_profile_edit` varchar(90) DEFAULT NULL,
+  `url_profile_created` varchar(90) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+
+--
+-- Gegevens worden geëxporteerd voor tabel `tso_tso_settings`
+--
+
+INSERT INTO `tso_tso_settings` (`id`, `targetpay_rtlo`, `form_id`, `field_id`, `url_login`, `url_register`, `url_card_overview`, `url_card_add`, `url_payment_done`, `url_profile_edit`, `url_profile_created`) VALUES
+(1, 0, 1, 3, '/inloggen/', '/inschrijven/', '/strippenkaart/', '/strippenkaart/strippenkaart-toevoegen/', '/payment-done/', '/profiel-bewerken/', '/bedankt-voor-het-aanmelden/');
 
 -- --------------------------------------------------------
 
@@ -69,7 +117,13 @@ CREATE TABLE IF NOT EXISTS `tso_tso_submissions` (
   `ip` varchar(32) NOT NULL,
   `payment_status` tinyint(1) NOT NULL,
   `created_at` datetime NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=latin1;
+
+--
+-- Gegevens worden geëxporteerd voor tabel `tso_tso_submissions`
+--
+
+-- --------------------------------------------------------
 
 --
 -- Tabelstructuur voor tabel `tso_tso_users`
@@ -86,7 +140,6 @@ CREATE TABLE IF NOT EXISTS `tso_tso_users` (
   `address` varchar(60) NOT NULL,
   `postalcode` varchar(8) NOT NULL,
   `city` varchar(70) NOT NULL,
-  `iban` varchar(20) NOT NULL,
   `phone_unreachable` varchar(12) NOT NULL,
   `relation_child` varchar(50) NOT NULL,
   `name_doc` varchar(40) NOT NULL,
@@ -98,8 +151,9 @@ CREATE TABLE IF NOT EXISTS `tso_tso_users` (
   `address_dentist` varchar(40) NOT NULL,
   `city_dentist` varchar(40) NOT NULL,
   `days_care` varchar(255) NOT NULL,
+  `school_id` int(11) NOT NULL,
   `ip` varchar(32) NOT NULL,
   `verified` datetime DEFAULT NULL,
   `created_at` datetime NOT NULL,
-  `hash` char(32) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+  `hash` varchar(90) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1;
