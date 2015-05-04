@@ -32,6 +32,7 @@ if(isset($_POST['submit'])) :
 		$table_settings, 
 				array( 
 					'targetpay_rtlo' => $_POST['targetpay_rtlo'],
+					'targetpay_testmode' => $_POST['targetpay_testmode'],
 					'form_id' => $_POST['form_id'],
 					'field_id' => $_POST['field_id'],
 					'url_login' => $_POST['url_login'],
@@ -54,6 +55,18 @@ endif;
 	
 		<p>
 			TargetPay RTLO (Layout code): <input type="text" name="targetpay_rtlo" required="required" value="<?php echo $settings->targetpay_rtlo; ?>" />
+		</p>
+		
+		<p>
+			TargetPay Betaling in Test Mode: 
+			
+			<select name="targetpay_testmode">
+				<option value="<?php echo $settings->targetpay_testmode; ?>">Huidige optie: <?php echo $settings->targetpay_testmode; ?></option>
+				<option value="1">Test Mode AAN</option>
+				<option value="0">Test Mode UIT</option>
+			</select>
+			
+			<input type="text" name="targetpay_rtlo" required="required" value="<?php echo $settings->targetpay_rtlo; ?>" />
 		</p>
 		
 		<p>

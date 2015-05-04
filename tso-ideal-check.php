@@ -10,6 +10,10 @@ if(!isset($_GET['trxid']) && !isset($_GET['ec'])){
 	exit;
 }
 
+$table_settings = $wpdb->prefix . 'tso_settings';
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
+
 $functionsClass = new Functions();
 
 /**
@@ -65,7 +69,7 @@ $userObject = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id =".$session
 // get school
 $schooldObject = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id =".$userObject->school_id, OBJECT );
 
-if ($oIdeal->validatePayment($trxid, 1,1) == true) {
+if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		
 	// check if child has a group
 	if($childObject->groep == null){
@@ -173,33 +177,6 @@ if ($oIdeal->validatePayment($trxid, 1,1) == true) {
 		$message_school .='Kind: '.$childObject->name.'<br />';
 		$message_school .='Groep: '.$childObject->groep.'<br />';
 		$message_school .='Strippenkaart: '.$cardObject->description.'<br /><br />';
-		$message_school ='<h2>Gegevens ouders</h2>';
-		
-		if($userObject->name_father !=null){
-			$message_school .='Naam vader: '.$userObject->name_father.'<br />';
-			$message_school .='Telefoon vader: '.$userObject->phone_father.'<br />';	
-		}
-		
-		if($userObject->name_mother !=null){
-			$message_school .='Naam moeder: '.$userObject->name_mother.'<br />';
-			$message_school .='Telefoon moeder: '.$userObject->phone_mother.'<br />';	
-		}
-		$message_school .='Adres: '.$userObject->address.'<br />';
-		$message_school .='Postcode en woonplaats: '.$userObject->postalcode . ' ' . $userObject->city .'<br />';
-		$message_school .='IBAN: '.$userObject->iban.'<br />';
-		$message_school .='Telefoon bij onbereikbaar: '.$userObject->phone_unreachable.'<br />';
-		$message_school .='Relatie tot kind(eren): '.$userObject->relation_child.'<br /><br />';
-		$message_school .='<h3>Dokter</h3>';
-		$message_school .='Naam dokter: '.$userObject->name_doc.'<br />';
-		$message_school .='Telefoon dokter: '.$userObject->phone_doc.'<br />';
-		$message_school .='Adres dokter: '.$userObject->address_doc.'<br />';
-		$message_school .='Woonplaats dokter: '.$userObject->city_doc.'<br />';
-		$message_school .='<h3>Tandarts</h3>';
-		$message_school .='Naam tandarts: '.$userObject->name_dentist.'<br />';
-		$message_school .='Telefoon tandarts: '.$userObject->phone_dentist.'<br />';
-		$message_school .='Adres tandarts: '.$userObject->address_dentist.'<br />';
-		$message_school .='Woonplaats tandarts: '.$userObject->city_dentist.'<br /><br />';
-		$message_school .='Dagen voor opvang: '.$userObject->days_care.'<br />';
 		
 		// Send mails
 		$functionsClass->SendMail('Strippenkaart afgenomen', get_option('admin_email'), $message_admin);

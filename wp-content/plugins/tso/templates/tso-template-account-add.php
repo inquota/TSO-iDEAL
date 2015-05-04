@@ -36,7 +36,7 @@ if(isset($_POST['submit'])){
 	$child_groups = $_POST['data']['Child']['group'];
 	
 	if(empty($_POST['email'])){
-		$error .= 'U heeft geen e-mail opgegeven.';
+		$error .= 'U heeft geen e-mail opgegeven.<br />';
 		$error_flag = false;
 	}elseif(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
 		$error .= 'Geen geldig e-mail.';
@@ -44,68 +44,68 @@ if(isset($_POST['submit'])){
 	}
 	
 	if(empty($_POST['address'])){
-		$error .= 'U heeft geen adres opgegeven.';
+		$error .= 'U heeft geen adres opgegeven.<br />';
 		$error_flag = false;
 	}
 	
 	if(empty($_POST['postalcode'])){
-		$error .= 'U heeft geen postcode opgegeven.';
+		$error .= 'U heeft geen postcode opgegeven.<br />';
 		$error_flag = false;
 	}
 	
 	if(empty($_POST['city'])){
-		$error .= 'U heeft geen postcode opgegeven.';
+		$error .= 'U heeft geen postcode opgegeven.<br />';
 		$error_flag = false;
 	}
 	
 	if(empty($_POST['phone_unreachable'])){
-		$error .= 'U heeft geen telefoon opgegeven bij onbereikbaar.';
+		$error .= 'U heeft geen telefoon opgegeven bij onbereikbaar.<br />';
 		$error_flag = false;
 	}
 		
 	if(empty($_POST['relation_child'])){
-		$error .= 'U heeft geen relatie tot kind opgegeven.';
+		$error .= 'U heeft geen relatie tot kind opgegeven.<br />';
 		$error_flag = false;
 	}
 	/* Doc */
 	if(empty($_POST['name_doc'])){
-		$error .= 'U heeft geen dokter opgegeven.';
+		$error .= 'U heeft geen dokter opgegeven.<br />';
 		$error_flag = false;
 	}
 	
 	if(empty($_POST['phone_doc'])){
-		$error .= 'U heeft geen dokter\'s telefoon opgegeven.';
+		$error .= 'U heeft geen dokter\'s telefoon opgegeven.<br />';
 		$error_flag = false;
 	}
 		
 	if(empty($_POST['address_doc'])){
-		$error .= 'U heeft geen dokter\'s adres opgegeven.';
+		$error .= 'U heeft geen dokter\'s adres opgegeven.<br />';
 		$error_flag = false;
 	}
 			
 	if(empty($_POST['city_doc'])){
-		$error .= 'U heeft geen dokter\'s plaats opgegeven.';
+		$error .= 'U heeft geen dokter\'s plaats opgegeven.<br />';
 		$error_flag = false;
 	}
 	
 	/* dentist */
 	if(empty($_POST['name_dentist'])){
-		$error .= 'U heeft geen tandarts opgegeven.';
+		$error .= 'U heeft geen tandarts opgegeven.<br />';
 		$error_flag = false;
 	}
 	
 	if(empty($_POST['phone_dentist'])){
-		$error .= 'U heeft geen tandarts telefoon opgegeven.';
+		$error .= 'U heeft geen tandarts telefoon opgegeven.<br />';
 		$error_flag = false;
 	}
 		
 	if(empty($_POST['address_dentist'])){
-		$error .= 'U heeft geen tandarts adres opgegeven.';
+		$error .= 'U heeft geen tandarts adres opgegeven.<br />';
 		$error_flag = false;
 	}
 			
 	if(empty($_POST['city_dentist'])){
-		$error .= 'U heeft geen tandarts plaats opgegeven.';
+		$error .= 'U heeft geen tandarts plaats opgegeven.<br />';
 		$error_flag = false;
 	}
 		
@@ -194,8 +194,11 @@ if(isset($_POST['submit'])){
 </style>
 
 <form method="POST">
+		<?php if(isset($error)) {
+			echo $error;
+		}?>
 <h2>Gegevens ouders</h2>
-<table>
+<table id="table-parents">
 	<tr>
 		<td>E-mail</td>
 		<td><input type="email" required="required" name="email" /></td>
@@ -223,7 +226,7 @@ if(isset($_POST['submit'])){
 </table>
 
 <h2>Gegevens Dokter</h2>
-<table>
+<table id="table-doctor">
 	<tr>
 		<td>Naam</td>
 		<td><input type="text" required="required" name="name_doc" /> Telefoon <input type="text" required="required" name="phone_doc" /></td>
@@ -236,7 +239,7 @@ if(isset($_POST['submit'])){
 
 
 <h2>Gegevens Tandarts</h2>
-<table>
+<table id="table-dentist">
 	<tr>
 		<td>Naam</td>
 		<td><input type="text" required="required" name="name_dentist" /> Telefoon <input type="text" required="required" name="phone_dentist" /></td>
@@ -248,7 +251,7 @@ if(isset($_POST['submit'])){
 </table>
 
 <h2>Gegevens kinderen</h2>
-<table>
+<table id="table-children">
 	<?php if(!isset($schools) || $schools == null ) : ?>
 		<span style="color: #FF0000;">Er zijn geen scholen beschikbaar. Neem contact op met de beheerder.</span>
 	<?php else : ?>
