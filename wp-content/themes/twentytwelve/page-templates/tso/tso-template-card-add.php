@@ -12,7 +12,7 @@ $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT
 
 // check if user is logged in
 if($_SESSION['user']==null){
-	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
+	echo'<script>window.location="'.$settings->url_login.'"; </script>';
 }
 
 $sessionUser = $_SESSION['user'];
@@ -105,9 +105,9 @@ if(isset($_POST['submit'])){
 		$_SESSION['data'] = $data;
 		
 		/**
-		* This haader function will redirect the browser to the bank
+		* This header function will redirect the browser to the bank
 		*/
-		echo '<meta http-equiv="refresh" content="0; URL='.$strBankURL.'">';
+		echo'<script>window.location="'.$strBankURL.'"; </script>';
 	}
 
 

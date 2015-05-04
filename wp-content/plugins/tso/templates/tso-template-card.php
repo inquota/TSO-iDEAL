@@ -15,7 +15,7 @@ $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT
 
 // check if user is logged in
 if($_SESSION['user']==null){
-	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
+	echo'<script>window.location="'.$settings->url_login.'"; </script>';
 }
 
 $sessionUser = $_SESSION['user'];
@@ -41,10 +41,11 @@ $results = $wpdb->get_results( "SELECT
 							WHERE 
 								user_id = ".$sessionUser->id . "", OBJECT );
 
-if(isset($_GET['action']) && $_GET['action']=='action'){
+if(isset($_GET['action']) && $_GET['action']=='logout'){
 	unset($_SESSION['user']);
 	session_destroy();
-	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
+	echo'<script>window.location="'.$settings->url_login.'"; </script>';
+	exit;
 }								
 ?>
 <a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>

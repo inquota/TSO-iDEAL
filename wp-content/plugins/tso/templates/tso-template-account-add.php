@@ -176,7 +176,7 @@ if(isset($_POST['submit'])){
 		
 		$functionsClass->SendMail('TSO | Account', $_POST['email'], $message);
 			
-		echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_profile_created.'">';
+		echo'<script>window.location="'.$settings->url_profile_created.'"; </script>';
 	}
 
 

@@ -12,7 +12,7 @@ $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT
 
 // check if user is logged in
 if($_SESSION['user']==null){
-	echo '<meta http-equiv="refresh" content="0; URL='.$settings->url_login.'">';
+	echo'<script>window.location="'.$settings->url_login.'"; </script>';
 }
 
 $sessionUser = $_SESSION['user'];
@@ -83,7 +83,7 @@ if(isset($_POST['submit'])){
 		$oIdeal->setIdealissuer($bank);
 		
 		# Set ideal description
-		$oIdeal->setIdealDescription($cardObject->description);
+		$oIdeal->setIdealDescription($cardObject->description_short);
 		
 		# Set return url, wich should return on succes
 		$oIdeal->setIdealReturnUrl('http://' . $_SERVER['HTTP_HOST'] . $targetpay['return_url']);
@@ -105,21 +105,14 @@ if(isset($_POST['submit'])){
 		$_SESSION['data'] = $data;
 		
 		/**
-		* This haader function will redirect the browser to the bank
+		* This header function will redirect the browser to the bank
 		*/
-		echo '<meta http-equiv="refresh" content="0; URL='.$strBankURL.'">';
+		echo'<script>window.location="'.$strBankURL.'"; </script>';
 	}
 
 
 }
-
-if ( have_posts() ) : while ( have_posts() ) : the_post();
 ?>
-	<div class="about-us-wrapper" style="background: #FFF;" data-stellar-background-ratio="0.5">
-	    <div class="container">
-	        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	        	
-	        	<?php echo the_content(); ?>
 	        	
 	        	<form method="POST">
 	        		<?php if(isset($error)) {
@@ -161,10 +154,3 @@ if ( have_posts() ) : while ( have_posts() ) : the_post();
 	        </div>
 	    </div>
 	</div>
-	
-	<div style="clear:both;"></div>
-
-<?php endwhile; endif; ?>
-
-
-<?php get_footer('customer-area'); ?>
