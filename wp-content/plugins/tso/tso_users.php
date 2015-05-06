@@ -10,21 +10,61 @@
 	$total = $wpdb->get_var( "SELECT COUNT(`id`) FROM {$table_users}" );
 	$num_of_pages = ceil( $total / $limit );
 	
+	$fields = array(
+    						'E-mail'=>'email', 
+    						'Naam vader'=> 'name_father',
+    						'Telefoon vader'=> 'phone_father',
+    						'Naam moeder'=> 'name_mother',
+    						'Telefoon moeder'=> 'phone_mother',
+    						'Adres'=> 'address',
+    						'Postcode'=> 'postalcode',
+    						'Plaats'=> 'city',
+    						'Telefoon bij onbereikbaar'=> 'phone_unreachable',
+    						'Relatie tot kind(eren)'=> 'relation_child',
+    						'Naam Dokter'=> 'name_doc',
+    						'Telefoon Dokter'=> 'phone_doc',
+    						'Adres Dokter'=> 'address_doc',
+    						'Plaats Dokter'=> 'city_doc',
+							'Naam Tandarts'=> 'name_dentist',
+    						'Telefoon Tandarts'=> 'phone_dentist',
+    						'Adres Tandarts'=> 'address_dentist',
+    						'Plaats Tandarts'=> 'city_dentist',
+    						'Dagen opvang'=> 'days_care',
+						);
+	
 	$items = $wpdb->get_results( 
 	"
-	SELECT User.email AS user_email, User.*, School.* 
+	SELECT User.email AS user_email, User.id AS user_id, User.*, School.* 
 	FROM {$table_users} AS User LEFT JOIN {$table_schools} AS School ON (User.school_id = School.id) ORDER BY User.id DESC
 	"
 	);
 
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_users} WHERE id IN (".implode(',', $_POST['id']).")");
-	header('Location: /wp-admin/admin.php?page=users');
+	echo'<script>window.location="/wp-admin/admin.php?page=users"; </script>';
 endif;
 ?>
 
 
 <div class="wrap">
+	<?php if(isset($_GET['page']) && $_GET['page']=='users'  && isset($_GET['view'])) : ?>
+
+	<?php
+	// Load data for view
+	$user = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$_GET['view']."", OBJECT);
+	?>
+		<?php    echo "<h2>" . __( 'View User', 'oscimp_trdom' ) . "</h2>"; ?>
+		<table style="padding: 5px;">
+		<?php foreach ($fields as $key => $value) : ?>
+			<tr>
+				<td><?php echo $key; ?></td>
+				<td><?php echo $user->$value; ?></td>
+			</tr>
+		<?php endforeach; ?>
+	
+		</table>
+	<?php endif; ?>
+	
 	<?php    echo "<h2>" . __( 'Users', 'oscimp_trdom' ) . "</h2>"; ?>
 <form method="POST">
 	
@@ -42,7 +82,8 @@ endif;
 			<th class="manage-column column-columnname" scope="col">Address</th>
 			<th class="manage-column column-columnname" scope="col">Postalcode</th>
 			<th class="manage-column column-columnname" scope="col">City</th>
-			<th class="manage-column column-columnname" scope="col">Created on</th>
+			<th class="manage-column column-columnname" scope="col">Created at</th>
+			<th class="manage-column column-columnname" scope="col">Actions</th>
     </tr>
     </thead>
 
@@ -58,7 +99,8 @@ endif;
 			<th class="manage-column column-columnname" scope="col">Address</th>
 			<th class="manage-column column-columnname" scope="col">Postalcode</th>
 			<th class="manage-column column-columnname" scope="col">City</th>
-			<th class="manage-column column-columnname" scope="col">Created on</th>
+			<th class="manage-column column-columnname" scope="col">Created at</th>
+			<th class="manage-column column-columnname" scope="col">Actions</th>
 
     </tr>
     </tfoot>
@@ -66,8 +108,8 @@ endif;
     <tbody>
     	<?php foreach($items as $item) : ?>
         <tr class="alternate">
-            <th class="check-column" scope="row"><input type="checkbox" value="<?php echo $item->id; ?>" name="id[]" /></th>
-            <td class="column-columnname"><?php echo $item->id; ?></td>
+            <th class="check-column" scope="row"><input type="checkbox" value="<?php echo $item->user_id; ?>" name="id[]" /></th>
+            <td class="column-columnname"><?php echo $item->user_id; ?></td>
             <td class="column-columnname"><?php echo $item->name; ?></td>
 			<td class="column-columnname"><?php echo $item->name_father; ?></td>
 			<td class="column-columnname"><?php echo $item->name_mother; ?></td>
@@ -76,6 +118,7 @@ endif;
 			<td class="column-columnname"><?php echo $item->postalcode; ?></td>
 			<td class="column-columnname"><?php echo $item->city; ?></td>
 			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->created_at)); ?></td>
+			<td class="column-columnname"><a href="?page=users&view=<?php echo $item->user_id; ?>">View</a></td>
         </tr>
         <?php endforeach; ?>
     </tbody>

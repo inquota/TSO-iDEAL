@@ -45,7 +45,7 @@ if(isset($_POST['insert'])) :
 				'created_at' => date('Y-m-d H:i:s'),	// string
 			)
 		);
-	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=schools">';
+	echo'<script>window.location="/wp-admin/admin.php?page=children"; </script>';
 endif;
 ?>
 

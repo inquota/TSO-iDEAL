@@ -41,7 +41,7 @@ FROM
 
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_submissions} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=tso">';
+	echo'<script>window.location="/wp-admin/admin.php?page=tso"; </script>';
 endif;
 
 

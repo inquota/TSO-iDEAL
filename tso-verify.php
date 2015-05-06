@@ -36,20 +36,19 @@ if($user != null){
 	$childObjects = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE user_id =".$userObject->id );
 	
 	// Save
-	$wpdb->update( 
+	/*$wpdb->update( 
 	$table_users, 
 			array( 
 				'verified' => date('c'),	// string
 			), 
 			array( 'id' => $user->id )
-		);
+		);*/
 		
 		
 		/**
 		 * Compose Mail for School 
 		 */
 		$message ='<h2>Gegevens aanmelding</h2>';
-		$message .='Groep: '.$childObject->groep.'<br />';
 		$message .='School: '.$schooldObject->name.'<br />';
 		$message .='Dagen voor opvang: '.$userObject->days_care.'<br />';
 		

@@ -9,7 +9,7 @@ $table_users = $wpdb->prefix . 'tso_users';
 
 // check if user is already logged in
 if(isset($_SESSION['user'])){
-	echo '<meta http-equiv="refresh" content="0; URL=/strippenkaart">';
+	echo'<script>window.location="'.$settings->url_card_overview.'"; </script>';
 }
 
 if(isset($_POST['login'])){
@@ -25,7 +25,7 @@ if(isset($_POST['login'])){
 	
 		if($passwordClass->validate_password($password, $user->password)){
 			$_SESSION['user'] = $user;
-			echo '<meta http-equiv="refresh" content="0; URL=/strippenkaart">';
+			echo'<script>window.location="'.$settings->url_card_overview.'"; </script>';
 		}else{
 			echo 'invalid';
 		}	
@@ -57,9 +57,6 @@ if(isset($_POST['login'])){
 	<button type="submit" name="login" class="">
 		Inloggen
 	</button>
-	<p>
-		<a href="/inschrijven/">Nieuwe gebruiker TSO</a>
-	</p>
 
 </form>
 				

@@ -33,8 +33,6 @@ if(isset($_POST['submit'])) :
 				array( 
 					'targetpay_rtlo' => $_POST['targetpay_rtlo'],
 					'targetpay_testmode' => $_POST['targetpay_testmode'],
-					'form_id' => $_POST['form_id'],
-					'field_id' => $_POST['field_id'],
 					'url_login' => $_POST['url_login'],
 					'url_register' => $_POST['url_register'],
 					'url_card_overview' => $_POST['url_card_overview'],
@@ -45,7 +43,7 @@ if(isset($_POST['submit'])) :
 				), 
 				array( 'id' => 1 )
 			);
-	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=settings">';
+	echo'<script>window.location="/wp-admin/admin.php?page=settings"; </script>';
 endif;
 ?>
 
@@ -59,22 +57,19 @@ endif;
 		
 		<p>
 			TargetPay Betaling in Test Mode: 
-			
+			<?php
+			if($settings->targetpay_testmode==1){
+				$targetpay_testmode = 'Test Mode AAN';
+			}else{
+				$targetpay_testmode = 'Test Mode UIT';
+			}
+			?>
 			<select name="targetpay_testmode">
-				<option value="<?php echo $settings->targetpay_testmode; ?>">Huidige optie: <?php echo $settings->targetpay_testmode; ?></option>
+				<option value="<?php echo $settings->targetpay_testmode; ?>">Huidige optie: <?php echo $targetpay_testmode; ?></option>
 				<option value="1">Test Mode AAN</option>
 				<option value="0">Test Mode UIT</option>
 			</select>
-			
-			<input type="text" name="targetpay_rtlo" required="required" value="<?php echo $settings->targetpay_rtlo; ?>" />
-		</p>
-		
-		<p>
-			Gravity Forms Form ID: <input type="text" name="form_id" required="required" value="<?php echo $settings->form_id; ?>" /> TSO scholen worden alleen geladen in dit Field Id (Dropdown menu).
-		</p>
-		
-		<p>
-			Gravity Forms Field ID: <input type="text" name="field_id" required="required" value="<?php echo $settings->field_id; ?>" /> TSO scholen worden alleen geladen in dit Form Id.
+	
 		</p>
 		
 	<?php    echo "<h2>" . __( 'URLS', 'tso' ) . "</h2>"; ?>
