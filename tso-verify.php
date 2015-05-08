@@ -36,13 +36,13 @@ if($user != null){
 	$childObjects = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE user_id =".$userObject->id );
 	
 	// Save
-	/*$wpdb->update( 
+	$wpdb->update( 
 	$table_users, 
 			array( 
 				'verified' => date('c'),	// string
 			), 
 			array( 'id' => $user->id )
-		);*/
+		);
 		
 		
 		/**
@@ -53,49 +53,44 @@ if($user != null){
 		$message .='Dagen voor opvang: '.$userObject->days_care.'<br />';
 		
 		foreach($childObjects as $child){
-			$message .='Kind en groep: '.$child->name.' (groep: '.$child->groep.')<br />';	
+			$message .='Kind en groep: '.$child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')<br />';	
 		}
 		
 		$message .='<h2>Gegevens ouders</h2>';
 		
-		if($userObject->name_father !=null){
-			$message .='Naam vader: '.$userObject->name_father.'<br />';
+		if($userObject->first_name_father !=null){
+			$message .='Naam vader: '.$userObject->first_name_father . ' ' . $userObject->last_name_father .'<br />';
 			$message .='Telefoon vader: '.$userObject->phone_father.'<br />';	
 		}
 		
-		if($userObject->name_mother !=null){
-			$message .='Naam moeder: '.$userObject->name_mother.'<br />';
+		if($userObject->first_name_mother !=null){
+			$message .='Naam moeder: '.$userObject->first_name_mother . ' ' . $userObject->last_name_mother .'<br />';
 			$message .='Telefoon moeder: '.$userObject->phone_mother.'<br />';	
 		}
 		$message .='Adres: '.$userObject->address.'<br />';
+		$message .='Huisnummer: '.$userObject->number.'<br />';
 		$message .='Postcode en woonplaats: '.$userObject->postalcode . ' ' . $userObject->city .'<br />';
 		$message .='Telefoon bij onbereikbaar: '.$userObject->phone_unreachable.'<br />';
 		$message .='Relatie tot kind(eren): '.$userObject->relation_child.'<br /><br />';
 		
 		$message .='<h3>Dokter</h3>';
-		$message .='Naam dokter: '.$userObject->name_doc.'<br />';
-		$message .='Telefoon dokter: '.$userObject->phone_doc.'<br />';
-		$message .='Adres dokter: '.$userObject->address_doc.'<br />';
-		$message .='Woonplaats dokter: '.$userObject->city_doc.'<br />';
+		$message .='Naam: '.$userObject->name_doc.'<br />';
+		$message .='Telefoon: '.$userObject->phone_doc.'<br />';
+		$message .='Adres: '.$userObject->address_doc.'<br />';
+		$message .='Huisnummer: '.$userObject->number_doc.'<br />';
+		$message .='Woonplaats: '.$userObject->city_doc.'<br />';
+		
 		$message .='<h3>Tandarts</h3>';
-		$message .='Naam tandarts: '.$userObject->name_dentist.'<br />';
-		$message .='Telefoon tandarts: '.$userObject->phone_dentist.'<br />';
-		$message .='Adres tandarts: '.$userObject->address_dentist.'<br />';
-		$message .='Woonplaats tandarts: '.$userObject->city_dentist.'<br /><br />';
+		$message .='Naam: '.$userObject->name_dentist.'<br />';
+		$message .='Telefoon: '.$userObject->phone_dentist.'<br />';
+		$message .='Adres: '.$userObject->address_dentist.'<br />';
+		$message .='Huisnummer: '.$userObject->number_dentist.'<br />';
+		$message .='Woonplaats: '.$userObject->city_dentist.'<br /><br />';
 		
 		// Send mails
-		$functionsClass->SendMail('Aanmelding', get_option('admin_email'), $message);
+		$functionsClass->SendMail('Aanmelding', $settings->tso_admin_mail, $message);
 		
-		if($schooldObject->email!=null){
-			$emails2=explode(',',$schooldObject->email);
-
-			// if school has multiple emails use bcc
-			if(count($emails2) > 1 && is_array($emails2)){
-				$functionsClass->SendMail('Aanmelding', $schooldObject->email, $message, $schooldObject->email);
-			}else{
-				$functionsClass->SendMail('Aanmelding', $schooldObject->email, $message);	
-			}
-		}	
+		$functionsClass->SendMail('Aanmelding', $schooldObject->email, $message);	
 		
 	header('Location: '.$settings->url_login.'?email='.$user->email);
 }else{

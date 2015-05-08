@@ -122,7 +122,7 @@ if(isset($_POST['submit'])){
 	        		
 	        			<tr>
 	        				<td>Naam</td>
-	        				<td><?php echo $result->name; ?></td>
+	        				<td><?php echo $result->first_name; ?> <?php echo $result->last_name; ?></td>
 	        			</tr>
 	        				        				        			
 						<tr>

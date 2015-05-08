@@ -23,40 +23,18 @@ $sessionUser = $_SESSION['user'];
  */ 
 $urlparts = explode('/',$_SERVER['REQUEST_URI']);
 
-$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id = 1", OBJECT );
- 
 $user = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$sessionUser->id, OBJECT );
 
 // groepen
 $groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a','5b','6','6a','6b','7','7a','7b','8','8a','8b');
 
 // card / strippenkaart
-$cards = $wpdb->get_results("SELECT * FROM {$table_cards}"); 
+$cards = $wpdb->get_results("SELECT * FROM {$table_cards}");
+
+$functionsClass = new Functions(); 
  
 $error= ''; 
 $error_flag = true;
-
-$fields = array(
-    						'E-mail'=>'email', 
-    						'Naam vader'=> 'name_father',
-    						'Telefoon vader'=> 'phone_father',
-    						'Naam moeder'=> 'name_mother',
-    						'Telefoon moeder'=> 'phone_mother',
-    						'Adres'=> 'address',
-    						'Postcode'=> 'postalcode',
-    						'Plaats'=> 'city',
-    						'Telefoon bij onbereikbaar'=> 'phone_unreachable',
-    						'Relatie tot kind(eren)'=> 'relation_child',
-    						'Naam Dokter'=> 'name_doc',
-    						'Telefoon Dokter'=> 'phone_doc',
-    						'Adres Dokter'=> 'address_doc',
-    						'Plaats Dokter'=> 'city_doc',
-							'Naam Tandarts'=> 'name_dentist',
-    						'Telefoon Tandarts'=> 'phone_dentist',
-    						'Adres Tandarts'=> 'address_dentist',
-    						'Plaats Tandarts'=> 'city_dentist',
-    						'Dagen opvang'=> 'days_care',
-						);
 
 if(isset($_POST['submit'])){
 	
@@ -65,15 +43,16 @@ if(isset($_POST['submit'])){
 			
 	if($error_flag==true){
 			// save
-		$wpdb->update( 
-		$table_users, 
-				array( 
+			$values = 	array( 
 						'email'=>$_POST['email'],
-						'name_father'=>$_POST['name_father'],
+						'first_name_father'=>$_POST['first_name_father'],
+						'last_name_father'=>$_POST['last_name_father'],
 						'phone_father'=>$_POST['phone_father'],
-						'name_mother'=>$_POST['name_mother'],
+						'first_name_mother'=>$_POST['first_name_mother'],
+						'last_name_mother'=>$_POST['last_name_mother'],
 						'phone_mother'=>$_POST['phone_mother'],
 						'address'=>$_POST['address'],
+						'number'=>$_POST['number'],
 						'postalcode'=>$_POST['postalcode'],
 						'city'=>$_POST['city'],
 						'phone_unreachable'=>$_POST['phone_unreachable'],
@@ -81,17 +60,90 @@ if(isset($_POST['submit'])){
 						'name_doc'=>$_POST['name_doc'],
 						'phone_doc'=>$_POST['phone_doc'],
 						'address_doc'=>$_POST['address_doc'],
+						'number_doc'=>$_POST['number_doc'],
 						'city_doc'=>$_POST['city_doc'],
 						'name_dentist'=>$_POST['name_dentist'],
 						'phone_dentist'=>$_POST['phone_dentist'],
 						'address_dentist'=>$_POST['address_dentist'],
-						'city_dentist'=>$_POST['city_dentist'],
-						'days_care'=>$_POST['days_care'], 
-				), 
+						'number_dentist'=>$_POST['number_dentist'],
+						'city_dentist'=>$_POST['city_dentist'],  
+				);
+				
+		$wpdb->update( 
+		$table_users, 
+			$values, 
 				array( 'id' => $sessionUser->id )
 			);
 			
-			echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
+			
+		$userObject = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$sessionUser->id, OBJECT );	
+		
+		$post_data=array();
+		foreach($values as $key=>$value){
+			$post_data[] = ($value != $user->$key) ? '<span style="color:green;">'.$value.'</span>' : $user->$key;
+		}	
+		$message ='Er zijn een aantal wijzigingen in een account. De wijzigingen worden in het groen weergegeven.<br /><br />';
+		$message .='<h1>Nieuwe gegevens</h1>';	
+		$message .='<h2>Gegevens ouders</h2>';
+		$message .='E-mail:' .$post_data[0] . '<br />';
+		$message .='Naam vader: '. $post_data[1]  . ' ' . $post_data[2] .'<br />';
+		$message .='Telefoon vader: '.$post_data[3].'<br />';	
+		
+		$message .='Naam moeder: '.$post_data[4] . ' ' . $post_data[5] .'<br />';
+		$message .='Telefoon moeder: '.$post_data[6].'<br />';	
+		
+		$message .='Adres: '.$post_data[7].'<br />';
+		$message .='Huisnummer: '.$post_data[8].'<br />';
+		$message .='Postcode en woonplaats: '.$post_data[9] . ' ' . $post_data[10] .'<br />';
+		$message .='Telefoon bij onbereikbaar: '.$post_data[11].'<br />';
+		$message .='Relatie tot kind(eren): '.$post_data[12].'<br /><br />';
+		
+		$message .='<h3>Dokter</h3>';
+		$message .='Naam: '.$post_data[13].'<br />';
+		$message .='Telefoon: '.$post_data[14].'<br />';
+		$message .='Adres: '.$post_data[15].'<br />';
+		$message .='Huisnummer: '.$post_data[16].'<br />';
+		$message .='Woonplaats: '.$post_data[17].'<br />';
+		
+		$message .='<h3>Tandarts</h3>';
+		$message .='Naam: '.$post_data[18].'<br />';
+		$message .='Telefoon: '.$post_data[19].'<br />';
+		$message .='Adres: '.$post_data[20].'<br />';
+		$message .='Huisnummer: '.$post_data[21].'<br />';
+		$message .='Woonplaats: '.$post_data[22].'<br /><br />';
+		$message .='<hr />';	
+		$message .='<h1>Oude gegevens</h1>';	
+		$message .='<h2>Gegevens ouders</h2>';
+		$message .='Naam vader: '. $user->first_name_father . ' ' . $user->last_name_father .'<br />';
+		$message .='Telefoon vader: '.$user->phone_father.'<br />';	
+		
+		$message .='Naam moeder: '.$user->first_name_mother . ' ' . $user->last_name_mother .'<br />';
+		$message .='Telefoon moeder: '.$user->phone_mother.'<br />';	
+		
+		$message .='Adres: '.$user->address.'<br />';
+		$message .='Huisnummer: '.$user->number.'<br />';
+		$message .='Postcode en woonplaats: '.$user->postalcode . ' ' . $user->city .'<br />';
+		$message .='Telefoon bij onbereikbaar: '.$user->phone_unreachable.'<br />';
+		$message .='Relatie tot kind(eren): '.$user->relation_child.'<br /><br />';
+		
+		$message .='<h3>Dokter</h3>';
+		$message .='Naam: '.$user->name_doc.'<br />';
+		$message .='Telefoon: '.$user->phone_doc.'<br />';
+		$message .='Adres: '.$user->address_doc.'<br />';
+		$message .='Huisnummer: '.$user->number_doc.'<br />';
+		$message .='Woonplaats: '.$user->city_doc.'<br />';
+		
+		$message .='<h3>Tandarts</h3>';
+		$message .='Naam: '.$user->name_dentist.'<br />';
+		$message .='Telefoon: '.$user->phone_dentist.'<br />';
+		$message .='Adres: '.$user->address_dentist.'<br />';
+		$message .='Huisnummer: '.$user->number_dentist.'<br />';
+		$message .='Woonplaats: '.$user->city_dentist.'<br /><br />';
+		
+		// Send mails
+		$functionsClass->SendMail('Account gewijzigd van aanmelding', $settings->tso_admin_mail, $message);
+			
+		echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
 	}
 
 
@@ -104,29 +156,79 @@ if(isset($_POST['submit'])){
 			width: 200px;
 		}
 	</style>
-	
-	<div id="tso-menu">
-		<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
-	</div>
-	
-	<form method="POST">
-		<?php if(isset($error)) {
-			echo $error;
-		}?>
-		<table style="padding: 5px;" id="account_edit">
-		
+	        	<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
+	        	<form method="POST">
+	        		<?php if(isset($error)) {
+	        			echo $error;
+	        		}?>
+	        		
+	        		
+<?php
+if($user==null){
+	echo "Gebruiker bestaat niet.";
+}else{
+?>	        		
+<h2>Gegevens ouders</h2>
+<table id="table-parents">
+	<tr>
+		<td>E-mail</td>
+		<td><input type="email" required="required" name="email" value="<?php echo $user->email; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Vader</td>
+		<td><input type="text" required="required" name="last_name_father" placeholder="Achternaam" value="<?php echo $user->last_name_father; ?>" /> <input type="text" required="required" name="first_name_father" placeholder="Voornaam" value="<?php echo $user->first_name_father; ?>" /> Telefoon <input type="text" required="required" name="phone_father" placeholder="0600000000" value="<?php echo $user->phone_father; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Moeder</td>
+		<td><input type="text" required="required" name="last_name_mother" placeholder="Achternaam" value="<?php echo $user->last_name_mother; ?>" /> <input type="text" required="required" name="first_name_mother" placeholder="Voornaam" value="<?php echo $user->first_name_mother; ?>" /> Telefoon <input type="text" required="required" name="phone_mother" placeholder="0600000000" value="<?php echo $user->phone_mother; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Adres</td>
+		<td><input type="text" required="required" name="address" value="<?php echo $user->address; ?>" /> Huisnummer <input type="text" required="required" name="number" size="5" maxlength="5" value="<?php echo $user->number; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Postcode en woonplaats</td>
+		<td><input type="text" required="required" name="postalcode" size="6" maxlength="6" value="<?php echo $user->postalcode; ?>" /> <input type="text" required="required" name="city"value="<?php echo $user->city; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Telefoon bij onbereikbaar</td>
+		<td><input type="text" required="required" name="phone_unreachable" value="<?php echo $user->phone_unreachable; ?>" /> Relatie tot kind(eren) <input type="text" required="required" name="relation_child" value="<?php echo $user->relation_child; ?>" /></td>
+	</tr>
+</table>
 
-		<?php foreach ($fields as $key => $value) : ?>
-		
-			<tr>
-				<td><?php echo $key; ?></td>
-				<td><input type="text" name="<?php echo $value; ?>" required="required" value="<?php echo $user->$value; ?>" /></td>
-			</tr>
-			
-		<?php endforeach; ?>
-	
-		</table>
-		<button type="submit" name="submit" class="">Profiel aanpassen</button>
-	</form>
+<h2>Gegevens Dokter</h2>
+<table id="table-doctor">
+	<tr>
+		<td>Naam</td>
+		<td><input type="text" required="required" name="name_doc" value="<?php echo $user->name_doc; ?>" /> Telefoon <input type="text" required="required" name="phone_doc" value="<?php echo $user->phone_doc; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Adres</td>
+		<td><input type="text" required="required" name="address_doc" value="<?php echo $user->address_doc; ?>" /> Huisnummer <input type="text" required="required" name="number_doc" size="5" maxlength="5" value="<?php echo $user->number_doc; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Woonplaats</td>
+		<td><input type="text" required="required" name="city_doc" value="<?php echo $user->city_doc; ?>" /></td>
+	</tr>
+</table>
+
+
+<h2>Gegevens Tandarts</h2>
+<table id="table-dentist">
+	<tr>
+		<td>Naam</td>
+		<td><input type="text" required="required" name="name_dentist" value="<?php echo $user->name_dentist; ?>" /> Telefoon <input type="text" required="required" name="phone_dentist" value="<?php echo $user->phone_dentist; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Adres</td>
+		<td><input type="text" required="required" name="address_dentist" value="<?php echo $user->address_dentist; ?>" />  Huisnummer <input type="text" required="required" name="number_dentist" size="5" maxlength="5" value="<?php echo $user->number_dentist; ?>" /></td>
+	</tr>
+	<tr>
+		<td>Woonplaats</td>
+		<td><input type="text" required="required" name="city_dentist" value="<?php echo $user->city_dentist; ?>" /></td>
+	</tr>
+</table>
+	        		<button type="submit" name="submit" class="">Profiel aanpassen</button>
+	        	</form>
 	        	
-	 
+	<?php } ?> 

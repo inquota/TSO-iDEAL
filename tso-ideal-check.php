@@ -10,6 +10,12 @@ if(!isset($_GET['trxid']) && !isset($_GET['ec'])){
 	exit;
 }
 
+// tables
+$table_submissions = $wpdb->prefix . 'tso_submissions';
+$table_children = $wpdb->prefix . 'tso_children';
+$table_cards = $wpdb->prefix . 'tso_cards';
+$table_schools = $wpdb->prefix . 'tso_schools';
+$table_users = $wpdb->prefix . 'tso_users';
 $table_settings = $wpdb->prefix . 'tso_settings';
 // get settings
 $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
@@ -34,14 +40,6 @@ $targetpay= array(
 
 $session_data = $_SESSION['data'];
 
-// tables
-$table_submissions = $wpdb->prefix . 'tso_submissions';
-$table_children = $wpdb->prefix . 'tso_children';
-$table_cards = $wpdb->prefix . 'tso_cards';
-$table_schools = $wpdb->prefix . 'tso_schools';
-$table_users = $wpdb->prefix . 'tso_users';
-$table_settings = $wpdb->prefix . 'tso_settings';
-
 $trxid = $_GET['trxid'];
 $ec = $_GET['ec'];		
 
@@ -57,22 +55,61 @@ $transactionCheck = $wpdb->get_row( "SELECT * FROM {$table_submissions} WHERE ec
 // get settings
 $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 
-// get child
-$childObject = $wpdb->get_row( "SELECT * FROM {$table_children} WHERE id =".$session_data['child_id'], OBJECT );
-	
-// get card
-$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE id =".$session_data['card'], OBJECT );
-
 // get user
 $userObject = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id =".$session_data['user_id'], OBJECT );
+
+// get child
+$childObject = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE id IN(".implode(',', $session_data['children']).")");
 
 // get school
 $schooldObject = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id =".$userObject->school_id, OBJECT );
 
 if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
+	
+	$card = array_filter($session_data['card']);
+	
+	if(count($childObject) > 1){
+			
+		// get card
+		$cardObject = $wpdb->get_results( "SELECT * FROM {$table_cards} WHERE price IN(".implode(',', $card).")");
+		
+		foreach($childObject as $k=>$child){
+			
+			if($transactionCheck==null){
+				
+				$wpdb->insert($table_submissions, array(
+				   "user_id" => $session_data['user_id'],
+				   "child_id" => $child->id,
+				   "school_id" => $userObject->school_id,
+				   "groep" => $child->groep,
+				   "card" => $cardObject[$k]->description,
+				   "price" => $cardObject[$k]->price,
+				   "bank" => $session_data['bank'],
+				   "ec" => $ec,
+				   "trxid" => $trxid,
+				   "ip" => $_SERVER['REMOTE_ADDR'],
+				   "payment_status" => 1,
+				   "created_at" => date('Y-m-d H:i:s'),
+				));
+				
+				// get last id
+				 if($wpdb->insert_id==0){
+				 	$last_insert_id = 'Onbekend';
+				 }else{
+				 	$last_insert_id = $wpdb->insert_id;
+				 }
+			}
+		}
+		
+	}else{
+			
+		// get card
+		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = ".$card[0]."", OBJECT);
+	}
+	
 		
 	// check if child has a group
-	if($childObject->groep == null){
+	/*if($childObject->groep == null){
 		// save
 		$wpdb->update( 
 		$table_children, 
@@ -101,7 +138,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 				), 
 				array( 'id' => $session_data['child_id'] )
 			);
-	}	
+	}*/	
 	
 	if($transactionCheck==null){
 		// save
@@ -120,12 +157,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		   "created_at" => date('Y-m-d H:i:s'),
 			));
 		
-		// get last id
-		 if($wpdb->insert_id==0){
-		 	$last_insert_id = 'Onbekend';
-		 }else{
-		 	$last_insert_id = $wpdb->insert_id;
-		 }
+
 		
 		/**
 		 * Compose Mail for Admin 
@@ -134,18 +166,22 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_admin .='Er is een strippenkaart afgenomen:<br /><br />';
 		$message_admin .='Strippenkaart nummer: '.$last_insert_id.'<br />';
 		
-		if($userObject->name_father !=null){
-			$message_admin .='Naam vader: '.$userObject->name_father.'<br />';	
+		if($userObject->first_name_father !=null){
+			$message_admin .='Naam vader: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
+			$message_admin .='Telefoon vader: '.$userObject->phone_father.' <br />';	
 		}
 
-		if($userObject->name_mother !=null){
-			$message_admin .='Naam moeder: '.$userObject->name_mother.'<br />';	
+		if($userObject->first_name_mother !=null){
+			$message_admin .='Naam moeder: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
+			$message_admin .='Telefoon moeder: '.$userObject->phone_mother.' <br />';
 		}
 		
 		$message_admin .='School: '.$schooldObject->name.'<br />';
-		$message_admin .='Kind: '.$childObject->name.'<br />';
-		$message_admin .='Groep: '.$session_data['groep'].'<br />';
+		foreach($childObject as $k=>$child){
+			$message_admin .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
+		}
 		$message_admin .='Strippenkaart: '.$cardObject->description.'<br /><br />';
+		
 		$message_admin .='<h2>Betaalgegevens</h2>';
 		$message_admin .='Betaald: Ja<br />';
 		$message_admin .='Bank: '.$banks[$session_data['bank']].'<br />';
@@ -159,8 +195,9 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_client .='Bedankt voor het afnemen van een strippenkaart. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
 		$message_client .='Strippenkaart nummer: '.$last_insert_id.'<br />';
 		$message_client .='School: '.$schooldObject->name.'<br />';
-		$message_client .='Kind: '.$childObject->name.'<br />';
-		$message_client .='Groep: '.$childObject->groep.'<br />';
+		foreach($childObject as $k=>$child){
+			$message_client .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
+		}
 		$message_client .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_client .='<h2>Betaalgegevens</h2>';
 		$message_client .='Betaald: Ja<br />';
@@ -174,25 +211,26 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_school ='<h2>Strippenkaart</h2>';
 		$message_school .='Er is een strippenkaart afgenomen:<br /><br />';
 		$message_school .='Strippenkaart nummer: '.$last_insert_id.'<br />';
-		$message_school .='Kind: '.$childObject->name.'<br />';
-		$message_school .='Groep: '.$childObject->groep.'<br />';
+		
+		if($userObject->first_name_father !=null){
+			$message_school .='Naam vader: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
+			$message_school .='Telefoon vader: '.$userObject->phone_father.' <br />';	
+		}
+
+		if($userObject->first_name_mother !=null){
+			$message_school .='Naam moeder: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
+			$message_school .='Telefoon moeder: '.$userObject->phone_mother.' <br />';
+		}
+		foreach($childObject as $k=>$child){
+			$message_school .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
+		}
 		$message_school .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		
 		// Send mails
-		$functionsClass->SendMail('Strippenkaart afgenomen', get_option('admin_email'), $message_admin);
+		$functionsClass->SendMail('Strippenkaart afgenomen', $settings->tso_admin_mail, $message_admin);
 		$functionsClass->SendMail('Strippenkaart afgenomen', $userObject->email, $message_client);
-		
-		if($schooldObject->email!=null){
-			$emails2=explode(',',$schooldObject->email);
+		$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);	
 
-			// if school has multiple emails use bcc
-			if(count($emails2) > 1 && is_array($emails2)){
-				$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school, $schooldObject->email);
-			}else{
-				$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);	
-			}
-		}
-		
 	}
 	
 }else{
@@ -218,7 +256,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_client ='<h2>Strippenkaart</h2>';
 		$message_client .='Helaas, het afnemen van een strippenkaart is helaas niet gelukt. Probeert u het nogmaals. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
 		$message_client .='School: '.$schooldObject->name.'<br />';
-		$message_client .='Kind: '.$childObject->name.'<br />';
+		$message_client .='Kind: '.$childObject->first_name.' '.$childObject->last_name.'<br />';
 		$message_client .='Groep: '.$childObject->groep.'<br />';
 		$message_client .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_client .='<h2>Betaalgegevens</h2>';

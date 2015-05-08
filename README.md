@@ -31,3 +31,10 @@ tso-template-login.php
 
 tso-template-payment-done.php
 <?php include 'tso/tso-template-payment-done.php'; ?>
+
+11. Voeg de onderstaande code toe aan je functies.php
+function register_session(){
+    if( !session_id() )
+        session_start();
+}
+add_action('init','register_session');

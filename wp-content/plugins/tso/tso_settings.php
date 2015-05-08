@@ -33,6 +33,7 @@ if(isset($_POST['submit'])) :
 				array( 
 					'targetpay_rtlo' => $_POST['targetpay_rtlo'],
 					'targetpay_testmode' => $_POST['targetpay_testmode'],
+					'tso_admin_mail' => $_POST['tso_admin_mail'],
 					'url_login' => $_POST['url_login'],
 					'url_register' => $_POST['url_register'],
 					'url_card_overview' => $_POST['url_card_overview'],
@@ -70,6 +71,10 @@ endif;
 				<option value="0">Test Mode UIT</option>
 			</select>
 	
+		</p>
+		
+		<p>
+			TSO Admin mail: <input type="email" name="tso_admin_mail" required="required" value="<?php echo $settings->tso_admin_mail; ?>" />
 		</p>
 		
 	<?php    echo "<h2>" . __( 'URLS', 'tso' ) . "</h2>"; ?>

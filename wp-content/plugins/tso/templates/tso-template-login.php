@@ -6,6 +6,9 @@ Template Name: TSO - Login
 global $wpdb;
 
 $table_users = $wpdb->prefix . 'tso_users';
+$table_settings = $wpdb->prefix . 'tso_settings';
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 
 // check if user is already logged in
 if(isset($_SESSION['user'])){
