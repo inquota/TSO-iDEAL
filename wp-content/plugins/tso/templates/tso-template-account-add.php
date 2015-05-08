@@ -13,14 +13,9 @@ $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT
  * Get Children from user_id
  */ 
 $urlparts = explode('/',$_SERVER['REQUEST_URI']);
-
-$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id = 1", OBJECT );
  
 // groepen
 $groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a','5b','6','6a','6b','7','7a','7b','8','8a','8b');
-
-// card / strippenkaart
-$cards = $wpdb->get_results("SELECT * FROM {$table_cards}");
 
 $schools = $wpdb->get_results("SELECT * FROM {$table_schools} ORDER by name ASC"); 
  
@@ -32,7 +27,8 @@ if(isset($_POST['submit'])){
 	unset($_POST['submit']);
 	
 	// Get Child data
-	$child_names = $_POST['data']['Child']['chid_name'];
+	$child_last_names = $_POST['data']['Child']['child_last_name'];
+	$child_first_names = $_POST['data']['Child']['child_first_name'];
 	$child_groups = $_POST['data']['Child']['group'];
 	
 	if(empty($_POST['email'])){
@@ -45,6 +41,11 @@ if(isset($_POST['submit'])){
 	
 	if(empty($_POST['address'])){
 		$error .= 'U heeft geen adres opgegeven.<br />';
+		$error_flag = false;
+	}
+	
+	if(empty($_POST['number'])){
+		$error .= 'U heeft geen huisnummer opgegeven.<br />';
 		$error_flag = false;
 	}
 	
@@ -82,6 +83,11 @@ if(isset($_POST['submit'])){
 		$error .= 'U heeft geen dokter\'s adres opgegeven.<br />';
 		$error_flag = false;
 	}
+	
+	if(empty($_POST['number_doc'])){
+		$error .= 'U heeft geen dokter\'s huisnummer opgegeven.<br />';
+		$error_flag = false;
+	}
 			
 	if(empty($_POST['city_doc'])){
 		$error .= 'U heeft geen dokter\'s plaats opgegeven.<br />';
@@ -103,9 +109,19 @@ if(isset($_POST['submit'])){
 		$error .= 'U heeft geen tandarts adres opgegeven.<br />';
 		$error_flag = false;
 	}
+	
+	if(empty($_POST['number_dentist'])){
+		$error .= 'U heeft geen tandarts huisnummer opgegeven.<br />';
+		$error_flag = false;
+	}
 			
 	if(empty($_POST['city_dentist'])){
 		$error .= 'U heeft geen tandarts plaats opgegeven.<br />';
+		$error_flag = false;
+	}
+	
+	if(empty($_POST['t_and_c'])){
+		$error .= 'U heeft de algemene voorwaarden niet geaccepteerd.<br />';
 		$error_flag = false;
 	}
 		
@@ -125,11 +141,14 @@ if(isset($_POST['submit'])){
 				array( 
 						'email'=>$_POST['email'],
 						"password" => $password_hash,
-						'name_father'=>$_POST['name_father'],
+						'first_name_father'=>$_POST['first_name_father'],
+						'last_name_father'=>$_POST['last_name_father'],
 						'phone_father'=>$_POST['phone_father'],
-						'name_mother'=>$_POST['name_mother'],
+						'first_name_mother'=>$_POST['first_name_mother'],
+						'last_name_mother'=>$_POST['last_name_mother'],
 						'phone_mother'=>$_POST['phone_mother'],
 						'address'=>$_POST['address'],
+						'number'=>$_POST['number'],
 						'postalcode'=>$_POST['postalcode'],
 						'city'=>$_POST['city'],
 						'phone_unreachable'=>$_POST['phone_unreachable'],
@@ -137,12 +156,14 @@ if(isset($_POST['submit'])){
 						'name_doc'=>$_POST['name_doc'],
 						'phone_doc'=>$_POST['phone_doc'],
 						'address_doc'=>$_POST['address_doc'],
+						'number_doc'=>$_POST['number_doc'],
 						'city_doc'=>$_POST['city_doc'],
 						'name_dentist'=>$_POST['name_dentist'],
 						'phone_dentist'=>$_POST['phone_dentist'],
 						'address_dentist'=>$_POST['address_dentist'],
+						'number_dentist'=>$_POST['number_dentist'],
 						'city_dentist'=>$_POST['city_dentist'], 
-						'days_care'=>$_POST['days_care'],
+						'days_care'=>implode(',', $_POST['days_care']),
 						'school_id'=>$_POST['school'], 
 						"ip" => $_SERVER['REMOTE_ADDR'],
 	   					"created_at" => date('Y-m-d H:i:s'),
@@ -152,14 +173,15 @@ if(isset($_POST['submit'])){
 		
 		$user_id=$wpdb->insert_id;
 		
-		foreach($child_names as $k=>$name){
+		foreach($child_last_names as $k=>$name){
 		
 			// save Child
 			$wpdb->insert( 
 			$table_children, 
 					array( 
 							'user_id'=>$user_id,
-							'name'=>$name,
+							'first_name'=> $child_first_names[$k],
+							'last_name'=>$name,
 							'groep'=>$child_groups[$k],
 		   					"created_at" => date('Y-m-d H:i:s'),
 					) 
@@ -204,16 +226,16 @@ if(isset($_POST['submit'])){
 		<td><input type="email" required="required" name="email" /></td>
 	</tr>
 	<tr>
-		<td>Naam vader</td>
-		<td><input type="text" required="required" name="name_father" /> Telefoon <input type="text" required="required" name="phone_father" /></td>
+		<td>Vader</td>
+		<td><input type="text" required="required" name="last_name_father" placeholder="Achternaam" /> <input type="text" required="required" name="first_name_father" placeholder="Voornaam" /> Telefoon <input type="text" required="required" name="phone_father" placeholder="0600000000" /></td>
 	</tr>
 	<tr>
-		<td>Naam moeder</td>
-		<td><input type="text" required="required" name="name_mother" /> Telefoon <input type="text" required="required" name="phone_mother" /></td>
+		<td>Moeder</td>
+		<td><input type="text" required="required" name="last_name_mother" placeholder="Achternaam" /> <input type="text" required="required" name="first_name_mother" placeholder="Voornaam" /> Telefoon <input type="text" required="required" name="phone_mother" placeholder="0600000000" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>
-		<td><input type="text" required="required" name="address" /></td>
+		<td><input type="text" required="required" name="address" /> Huisnummer <input type="text" required="required" name="number" size="5" maxlength="5" /></td>
 	</tr>
 	<tr>
 		<td>Postcode en woonplaats</td>
@@ -232,8 +254,12 @@ if(isset($_POST['submit'])){
 		<td><input type="text" required="required" name="name_doc" /> Telefoon <input type="text" required="required" name="phone_doc" /></td>
 	</tr>
 	<tr>
-		<td>Adres en woonplaats</td>
-		<td><input type="text" required="required" name="address_doc" /> <input type="text" required="required" name="city_doc" /></td>
+		<td>Adres</td>
+		<td><input type="text" required="required" name="address_doc" /> Huisnummer <input type="text" required="required" name="number_doc" size="5" maxlength="5" /></td>
+	</tr>
+	<tr>
+		<td>Woonplaats</td>
+		<td><input type="text" required="required" name="city_doc" /></td>
 	</tr>
 </table>
 
@@ -245,8 +271,12 @@ if(isset($_POST['submit'])){
 		<td><input type="text" required="required" name="name_dentist" /> Telefoon <input type="text" required="required" name="phone_dentist" /></td>
 	</tr>
 	<tr>
-		<td>Adres en woonplaats</td>
-		<td><input type="text" required="required" name="address_dentist" /> <input type="text" required="required" name="city_dentist" /></td>
+		<td>Adres</td>
+		<td><input type="text" required="required" name="address_dentist" />  Huisnummer <input type="text" required="required" name="number_dentist" size="5" maxlength="5" /></td>
+	</tr>
+	<tr>
+		<td>Woonplaats</td>
+		<td><input type="text" required="required" name="city_dentist" /></td>
 	</tr>
 </table>
 
@@ -285,7 +315,8 @@ if(isset($_POST['submit'])){
 		<td>
 			<ul style="list-style-type: none;" id="children">
 				<li>
-					Naam <input type="text" required="required" name="data[Child][chid_name][]" />
+					Kind <input type="text" required="required" name="data[Child][child_last_name][]" placeholder="Achternaam" />
+					<input type="text" required="required" name="data[Child][child_first_name][]" placeholder="Voornaam" />
 					Groep 
 
 	        				<select name="data[Child][group][]">
@@ -306,6 +337,12 @@ if(isset($_POST['submit'])){
 	</tr>
 	<?php endif; ?>
 </table>
+<hr />
+<p>
+	<input type="checkbox" value="agree" name="t_and_c" required="required"  /> Ik ga akkoord met de <a href="https://delunchclub-opo.nl/?p=63" title="algemene voorwaarden">algemene voorwaarden</a>	
+</p>
 
-<button type="submit" name="submit" class="">Aanmelden</button>
+<p>
+	<button type="submit" name="submit" class="">Aanmelden</button>
+</p>
 </form>

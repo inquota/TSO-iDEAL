@@ -4,7 +4,7 @@
     Plugin URI: http://www.inquota.nl
     Description: Plugin for TSO.
     Author: J. de Jong
-    Version: 1.0
+    Version: 0.1
     Author URI: http://www.inquota.nl
     */
 
