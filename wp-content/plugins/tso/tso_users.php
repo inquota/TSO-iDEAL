@@ -12,10 +12,10 @@
 	
 	$fields = array(
     						'E-mail'=>'email', 
-    						'Naam vader'=> 'name_father',
-    						'Telefoon vader'=> 'phone_father',
-    						'Naam moeder'=> 'name_mother',
-    						'Telefoon moeder'=> 'phone_mother',
+    						'1ste Ouder / verzorger'=> 'name_mother',
+    						'1ste Ouder / verzorger telefoon'=> 'phone_mother',
+    						'2de Ouder / verzorger'=> 'name_father',
+    						'2de Ouder / verzorger telefoon'=> 'phone_father',
     						'Adres'=> 'address',
     						'Postcode'=> 'postalcode',
     						'Plaats'=> 'city',
@@ -76,8 +76,8 @@ endif;
             <th id="cb" class="manage-column column-cb check-column" scope="col"></th> 
 			<th class="manage-column column-columnname" scope="col">Id</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
-			<th class="manage-column column-columnname" scope="col">Father</th>
-			<th class="manage-column column-columnname" scope="col">Mother</th>
+			<th class="manage-column column-columnname" scope="col">1st Parent</th>
+			<th class="manage-column column-columnname" scope="col">2nd Parent</th>
 			<th class="manage-column column-columnname" scope="col">E-mail</th>
 			<th class="manage-column column-columnname" scope="col">Address</th>
 			<th class="manage-column column-columnname" scope="col">Postalcode</th>
@@ -93,8 +93,8 @@ endif;
             <th class="manage-column column-cb check-column" scope="col"></th>
 			<th class="manage-column column-columnname" scope="col">Id</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
-			<th class="manage-column column-columnname" scope="col">Father</th>
-			<th class="manage-column column-columnname" scope="col">Mother</th>
+			<th class="manage-column column-columnname" scope="col">1st Parent</th>
+			<th class="manage-column column-columnname" scope="col">2nd Parent</th>
 			<th class="manage-column column-columnname" scope="col">E-mail</th>
 			<th class="manage-column column-columnname" scope="col">Address</th>
 			<th class="manage-column column-columnname" scope="col">Postalcode</th>
@@ -111,8 +111,8 @@ endif;
             <th class="check-column" scope="row"><input type="checkbox" value="<?php echo $item->user_id; ?>" name="id[]" /></th>
             <td class="column-columnname"><?php echo $item->user_id; ?></td>
             <td class="column-columnname"><?php echo $item->name; ?></td>
-			<td class="column-columnname"><?php echo $item->name_father; ?></td>
-			<td class="column-columnname"><?php echo $item->name_mother; ?></td>
+			<td class="column-columnname"><?php echo $item->first_name_mother; ?> <?php echo $item->last_name_mother; ?></td>
+			<td class="column-columnname"><?php echo $item->first_name_father; ?> <?php echo $item->last_name_father; ?></td>
 			<td class="column-columnname"><?php echo $item->user_email; ?></td>
 			<td class="column-columnname"><?php echo $item->address; ?></td>
 			<td class="column-columnname"><?php echo $item->postalcode; ?></td>

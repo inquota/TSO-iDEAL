@@ -58,14 +58,14 @@ if($user != null){
 		
 		$message .='<h2>Gegevens ouders</h2>';
 		
-		if($userObject->first_name_father !=null){
-			$message .='Naam vader: '.$userObject->first_name_father . ' ' . $userObject->last_name_father .'<br />';
-			$message .='Telefoon vader: '.$userObject->phone_father.'<br />';	
+		if($userObject->first_name_mother !=null){
+			$message .='1ste Ouder / verzorger: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
+			$message .='1ste Ouder / verzorger telefoon: '.$userObject->phone_mother.' <br />';
 		}
 		
-		if($userObject->first_name_mother !=null){
-			$message .='Naam moeder: '.$userObject->first_name_mother . ' ' . $userObject->last_name_mother .'<br />';
-			$message .='Telefoon moeder: '.$userObject->phone_mother.'<br />';	
+		if($userObject->first_name_father !=null){
+			$message .='2de Ouder / verzorger: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
+			$message .='2de Ouder / verzorger telefoon: '.$userObject->phone_father.' <br />';	
 		}
 		$message .='Adres: '.$userObject->address.'<br />';
 		$message .='Huisnummer: '.$userObject->number.'<br />';

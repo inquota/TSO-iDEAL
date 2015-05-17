@@ -165,15 +165,15 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_admin ='<h2>Strippenkaart</h2>';
 		$message_admin .='Er is een strippenkaart afgenomen:<br /><br />';
 		$message_admin .='Strippenkaart nummer: '.$last_insert_id.'<br />';
-		
-		if($userObject->first_name_father !=null){
-			$message_admin .='Naam vader: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
-			$message_admin .='Telefoon vader: '.$userObject->phone_father.' <br />';	
-		}
 
 		if($userObject->first_name_mother !=null){
-			$message_admin .='Naam moeder: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
-			$message_admin .='Telefoon moeder: '.$userObject->phone_mother.' <br />';
+			$message_admin .='1ste Ouder / verzorger: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
+			$message_admin .='1ste Ouder / verzorger telefoon: '.$userObject->phone_mother.' <br />';
+		}
+				
+		if($userObject->first_name_father !=null){
+			$message_admin .='2de Ouder / verzorger: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
+			$message_admin .='2de Ouder / verzorger telefoon: '.$userObject->phone_father.' <br />';	
 		}
 		
 		$message_admin .='School: '.$schooldObject->name.'<br />';
@@ -211,16 +211,18 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_school ='<h2>Strippenkaart</h2>';
 		$message_school .='Er is een strippenkaart afgenomen:<br /><br />';
 		$message_school .='Strippenkaart nummer: '.$last_insert_id.'<br />';
-		
-		if($userObject->first_name_father !=null){
-			$message_school .='Naam vader: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
-			$message_school .='Telefoon vader: '.$userObject->phone_father.' <br />';	
-		}
 
 		if($userObject->first_name_mother !=null){
-			$message_school .='Naam moeder: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
-			$message_school .='Telefoon moeder: '.$userObject->phone_mother.' <br />';
+			$message_school .='1ste Ouder / verzorger: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
+			$message_school .='1ste Ouder / verzorger telefoon: '.$userObject->phone_mother.' <br />';
 		}
+		
+		if($userObject->first_name_father !=null){
+			$message_school .='2de Ouder / verzorger: '.$userObject->first_name_father.' '.$userObject->last_name_father.'<br />';
+			$message_school .='2de Ouder / verzorger telefoon: '.$userObject->phone_father.' <br />';	
+		}
+
+
 		foreach($childObject as $k=>$child){
 			$message_school .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
 		}

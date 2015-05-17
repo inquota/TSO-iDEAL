@@ -41,6 +41,8 @@ if(isset($_POST['submit'])) :
 					'url_payment_done' => $_POST['url_payment_done'],
 					'url_profile_edit' => $_POST['url_profile_edit'],
 					'url_profile_created' => $_POST['url_profile_created'],
+					'url_password_change' => $_POST['url_password_change'],
+					'url_profile_edit_done' => $_POST['url_profile_edit_done'],
 				), 
 				array( 'id' => 1 )
 			);
@@ -91,6 +93,8 @@ endif;
 							'URL voor betaling afgerond'=> 'url_payment_done',
 							'URL voor profiel bewerken'=> 'url_profile_edit',
 							'URL voor profiel aangemaakt'=> 'url_profile_created',
+							'URL voor profiel wachtwoord aanpassen'=> 'url_password_change',
+							'URL voor profiel bewerken aangepast'=> 'url_profile_edit_done',
 						);
 		
 		foreach($array_urls as $key=>$url) : ?>
