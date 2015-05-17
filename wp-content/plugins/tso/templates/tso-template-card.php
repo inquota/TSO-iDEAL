@@ -157,7 +157,10 @@ if(isset($_POST['submit'])){
 	}
 }						
 ?>
-<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> <a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> - <a href="?action=logout">Uitloggen</a>
+<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> - 
+<a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> -
+<a href="<?php echo $settings->url_password_change; ?>">Wachtwoord opnieuw instellen</a> - 
+<a href="?action=logout">Uitloggen</a>
 <hr />
 <?php
 if($user==null){
@@ -199,7 +202,16 @@ if($user==null){
 	</table>
 	<hr />
 	<p>
-	Kies een bank: <select name="bank" id="bank"><script src="http://www.targetpay.com/ideal/issuers-nl.js"></script></select>	
+	Kies een bank: <select name="bank" id="bank"><option selected value="">Kies uw bank...</option>
+<option value="0031">ABN Amro</option>
+<option value="0721">ING</option>
+<option value="0021">Rabobank</option>
+<option value="0751">SNS Bank</option>
+<option value="0761">ASN Bank</option>
+<option value="0801">Knab</option>
+<option value="0771">RegioBank</option>
+<option value="0511">Triodos Bank</option>
+<option value="0161">Van Lanschot Bankiers</option></select>	
 	</p>
 	
 	<p>

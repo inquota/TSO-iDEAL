@@ -38,6 +38,24 @@ if(isset($_POST['submit'])){
 		$error .= 'Geen geldig e-mail.';
 		$error_flag = false;
 	}
+
+	if(empty($_POST['first_name_mother'])){
+		$error .= 'U heeft geen voornaam van 1e ouder / verzorger opgegeven.<br />';
+		$error_flag = false;
+	}
+	
+	if(empty($_POST['last_name_mother'])){
+		$error .= 'U heeft geen achternaam van 1e ouder / verzorger opgegeven.<br />';
+		$error_flag = false;
+	}
+	
+	if(empty($_POST['phone_mother'])){
+		$error .= 'U heeft geen telefoon van 1e ouder / verzorger opgegeven.<br />';
+		$error_flag = false;
+	}elseif(empty($_POST['phone_mother'])){
+		$error .= 'Het opgegeven telefoonnummer bevat geen 10 cijfers.<br />';
+		$error_flag = false;
+	}
 	
 	if(empty($_POST['address'])){
 		$error .= 'U heeft geen adres opgegeven.<br />';
@@ -62,6 +80,9 @@ if(isset($_POST['submit'])){
 	if(empty($_POST['phone_unreachable'])){
 		$error .= 'U heeft geen telefoon opgegeven bij onbereikbaar.<br />';
 		$error_flag = false;
+	}elseif(empty($_POST['phone_unreachable'])){
+		$error .= 'Het opgegeven telefoonnummer bevat geen 10 cijfers.<br />';
+		$error_flag = false;
 	}
 		
 	if(empty($_POST['relation_child'])){
@@ -76,6 +97,9 @@ if(isset($_POST['submit'])){
 	
 	if(empty($_POST['phone_doc'])){
 		$error .= 'U heeft geen dokter\'s telefoon opgegeven.<br />';
+		$error_flag = false;
+	}elseif(empty($_POST['phone_doc'])){
+		$error .= 'Het opgegeven telefoonnummer bevat geen 10 cijfers.<br />';
 		$error_flag = false;
 	}
 		
@@ -103,6 +127,9 @@ if(isset($_POST['submit'])){
 	if(empty($_POST['phone_dentist'])){
 		$error .= 'U heeft geen tandarts telefoon opgegeven.<br />';
 		$error_flag = false;
+	}elseif(empty($_POST['phone_dentist'])){
+		$error .= 'Het opgegeven telefoonnummer bevat geen 10 cijfers.<br />';
+		$error_flag = false;
 	}
 		
 	if(empty($_POST['address_dentist'])){
@@ -117,6 +144,11 @@ if(isset($_POST['submit'])){
 			
 	if(empty($_POST['city_dentist'])){
 		$error .= 'U heeft geen tandarts plaats opgegeven.<br />';
+		$error_flag = false;
+	}
+	
+	if(empty($_POST['school'])){
+		$error .= 'U heeft geen school opgegeven.<br />';
 		$error_flag = false;
 	}
 	
@@ -212,6 +244,7 @@ if(isset($_POST['submit'])){
 	
 	table tr td {
 		padding: 10px;
+		font-size: 12px;
 	}
 </style>
 
@@ -223,15 +256,15 @@ if(isset($_POST['submit'])){
 <table id="table-parents">
 	<tr>
 		<td>E-mail</td>
-		<td><input type="email" required="required" name="email" /></td>
+		<td><input type="email" required="required" name="email" style="width: 293px;" /></td>
 	</tr>
 	<tr>
-		<td>Vader</td>
-		<td><input type="text" required="required" name="last_name_father" placeholder="Achternaam" /> <input type="text" required="required" name="first_name_father" placeholder="Voornaam" /> Telefoon <input type="text" required="required" name="phone_father" placeholder="0600000000" /></td>
+		<td>1ste Ouder / verzorger</td>
+		<td><input type="text" required="required" name="last_name_mother" placeholder="Achternaam" /> <input type="text" required="required" name="first_name_mother" placeholder="Voornaam" /> <input placeholder="0600000000" type="text" required="required" name="phone_mother" placeholder="0600000000" size="10" maxlength="10" /></td>
 	</tr>
 	<tr>
-		<td>Moeder</td>
-		<td><input type="text" required="required" name="last_name_mother" placeholder="Achternaam" /> <input type="text" required="required" name="first_name_mother" placeholder="Voornaam" /> Telefoon <input type="text" required="required" name="phone_mother" placeholder="0600000000" /></td>
+		<td>2de Ouder / verzorger</td>
+		<td><input type="text" name="last_name_father" placeholder="Achternaam" /> <input type="text" name="first_name_father" placeholder="Voornaam" /> <input type="text" name="phone_father" placeholder="0600000000" size="10" maxlength="10" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>
@@ -243,7 +276,7 @@ if(isset($_POST['submit'])){
 	</tr>
 	<tr>
 		<td>Telefoon bij onbereikbaar</td>
-		<td><input type="text" required="required" name="phone_unreachable" /> Relatie tot kind(eren) <input type="text" required="required" name="relation_child" /></td>
+		<td><input type="text" required="required" name="phone_unreachable" size="10" maxlength="10" /> Relatie tot kind(eren) <input type="text" required="required" name="relation_child" /></td>
 	</tr>
 </table>
 
@@ -251,7 +284,7 @@ if(isset($_POST['submit'])){
 <table id="table-doctor">
 	<tr>
 		<td>Naam</td>
-		<td><input type="text" required="required" name="name_doc" /> Telefoon <input type="text" required="required" name="phone_doc" /></td>
+		<td><input type="text" required="required" name="name_doc" /> Telefoon <input type="text" required="required" name="phone_doc" size="10" maxlength="10" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>
@@ -268,7 +301,7 @@ if(isset($_POST['submit'])){
 <table id="table-dentist">
 	<tr>
 		<td>Naam</td>
-		<td><input type="text" required="required" name="name_dentist" /> Telefoon <input type="text" required="required" name="phone_dentist" /></td>
+		<td><input type="text" required="required" name="name_dentist" /> Telefoon <input type="text" required="required" name="phone_dentist" size="10" maxlength="10" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>

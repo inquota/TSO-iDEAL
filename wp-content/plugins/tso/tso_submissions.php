@@ -41,7 +41,7 @@ FROM
 
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_submissions} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo'<script>window.location="/wp-admin/admin.php?page=tso"; </script>';
+	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=tso">';
 endif;
 
 
@@ -59,7 +59,7 @@ endif;
 
             <th id="cb" class="manage-column column-cb check-column" scope="col"></th> 
 			<th class="manage-column column-columnname" scope="col">Id</th>
-			<th class="manage-column column-columnname" scope="col">Ouders</th>
+			<th class="manage-column column-columnname" scope="col">Ouders / verzorgers</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
 			<th class="manage-column column-columnname" scope="col">Groep</th>
 			<th class="manage-column column-columnname" scope="col">Kind</th>
@@ -75,7 +75,7 @@ endif;
 
             <th class="manage-column column-cb check-column" scope="col"></th>
 			<th class="manage-column column-columnname" scope="col">Id</th>
-			<th class="manage-column column-columnname" scope="col">Ouders</th>
+			<th class="manage-column column-columnname" scope="col">Ouders / verzorgers</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
 			<th class="manage-column column-columnname" scope="col">Groep</th>
 			<th class="manage-column column-columnname" scope="col">Kind</th>
