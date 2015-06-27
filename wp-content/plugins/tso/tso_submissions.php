@@ -27,9 +27,11 @@ SELECT
 	Submission.price,
 	Submission.payment_status,
 	Submission.bank,
-	User.name_father,
-	User.name_mother,
-	Child.name AS name_child,
+	User.first_name_father,
+	User.last_name_father,
+	User.first_name_mother,
+	User.last_name_mother,
+	Child.first_name AS name_child,
 	School.name AS name_school
 FROM 
 	{$table_submissions} as Submission 
@@ -92,7 +94,7 @@ endif;
         <tr class="alternate">
             <th class="check-column" scope="row"><input type="checkbox" value="<?php echo $booking->id; ?>" name="id[]" /></th>
             <td class="column-columnname"><?php echo $booking->id; ?></td>
-			<td class="column-columnname"><?php echo $booking->name_father; ?> <?php echo $booking->name_mother; ?></td>
+			<td class="column-columnname"><?php echo $booking->first_name_mother; ?> <?php echo $booking->last_name_mother; ?> -  <?php echo $booking->first_name_father; ?> <?php echo $booking->last_name_father; ?></td>
 			<td class="column-columnname"><?php echo $booking->name_school; ?></td>
 			<td class="column-columnname"><?php echo $booking->groep; ?></td>
 			<td class="column-columnname"><?php echo $booking->name_child; ?></td>

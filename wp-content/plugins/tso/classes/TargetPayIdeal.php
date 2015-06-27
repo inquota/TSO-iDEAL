@@ -174,7 +174,7 @@ class TargetPayIdeal extends TargetPay {
   */
     
   public static function getBanks() {
-    return array('0031'=>'ABN AMRO Bank', '0761'=>'ASN Bank', '0081'=>'Fortis Bank', '0091'=>'Friesland Bank', '0721'=>'ING Bank', '0021'=>'Rabobank', '0751'=>'SNS Bank', '0771'=>'SNS Regio Bank');
+    return array('0031'=>'ABN AMRO Bank', '0761'=>'ASN Bank', '0081'=>'Fortis Bank', '0091'=>'Friesland Bank', '0721'=>'ING Bank', '0021'=>'Rabobank', '0751'=>'SNS Bank', '0771'=>'SNS Regio Bank', '0511' => 'Triodos Bank', '0801' => 'Knab', '0771' => 'RegioBank', '0161' => 'Van Lanschot Bankiers');
   }
   
 }

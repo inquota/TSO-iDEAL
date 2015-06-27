@@ -14,7 +14,8 @@
 	$items = $wpdb->get_results( 
 		"SELECT 
 				Child.id, 
-				Child.name AS name_child, 
+				Child.first_name AS first_name,
+				Child.last_name AS last_name,  
 				School.name AS name_school, 
 				Child.groep, 
 				Child.created_at 
@@ -22,30 +23,12 @@
 			{$table_children} AS Child
 		LEFT JOIN {$table_users} AS User ON (Child.user_id=User.id) 
 		LEFT JOIN {$table_schools} AS School ON (School.id=User.school_id) 
-		ORDER BY 
-			Child.id 
-		DESC"
+		ORDER BY name_school ASC, first_name ASC"
 	);
-
+	
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_children} WHERE id IN (".implode(',', $_POST['id']).")");
-	header('Location: ');
-	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=schools">';
-endif;
-
-
-if(isset($_POST['insert'])) :
-
-	// Save e-mail templates
-	$wpdb->insert( 
-	$table_submissions, 
-			array( 
-				'name' => $_POST['name'],	// string
-				'email' => $_POST['email'],	// string
-				'created_at' => date('Y-m-d H:i:s'),	// string
-			)
-		);
-	echo'<script>window.location="/wp-admin/admin.php?page=children"; </script>';
+	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=children">';
 endif;
 ?>
 
@@ -88,7 +71,7 @@ endif;
             <td class="column-columnname"><?php echo $item->id; ?></td>
             <td class="column-columnname"><?php echo $item->name_school; ?></td>
             <td class="column-columnname"><?php echo $item->groep; ?></td>
-			<td class="column-columnname"><?php echo $item->name_child; ?></td>
+			<td class="column-columnname"><?php echo $item->first_name; ?> <?php echo $item->last_name; ?></td>
 			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->created_at)); ?></td>
         </tr>
         <?php endforeach; ?>

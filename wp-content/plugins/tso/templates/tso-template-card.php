@@ -79,7 +79,15 @@ if(isset($_POST['submit'])){
 		$description_short = implode(', ', $description_short_array);
 		$price= (array_sum($price_array));	
 	}elseif(count($card) == 1){
-		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = '".$card[0]."'", OBJECT );
+		
+		$single_card= '';
+		foreach($card as $key_single_card=>$single_card){
+			if(isset($key_single_card)){
+				$single_card= $single_card;
+			}
+		}
+		
+		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = '".$single_card."'", OBJECT );
 		$description_short = $cardObject->description_short;
 		$price= $cardObject->price;
 	}else{
@@ -202,6 +210,10 @@ if($user==null){
 	</table>
 	<hr />
 	<p>
+		<?php if($_SERVER['REMOTE_ADDR'] != '92.111.180.150') { ?>
+		Betaling onder constructie.
+		<?php }else { ?>
+		
 	Kies een bank: <select name="bank" id="bank"><option selected value="">Kies uw bank...</option>
 <option value="0031">ABN Amro</option>
 <option value="0721">ING</option>
@@ -216,7 +228,7 @@ if($user==null){
 	
 	<p>
 		<button type="submit" name="submit" class="">Afrekenen</button>
-	</p>
+	</p><?php } ?>
 	</form>
 	
 <?php endif; ?>	
