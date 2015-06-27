@@ -2,6 +2,7 @@
 	global $wpdb;
 	$table_users = $wpdb->prefix . 'tso_users';
 	$table_schools = $wpdb->prefix . 'tso_schools';
+	$table_children = $wpdb->prefix . 'tso_children';
 		
 	$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
 
@@ -12,9 +13,11 @@
 	
 	$fields = array(
     						'E-mail'=>'email', 
-    						'1ste Ouder / verzorger'=> 'name_mother',
+    						'Voornaam 1ste Ouder / verzorger'=> 'first_name_mother',
+    						'Achternaam 1ste Ouder / verzorger'=> 'last_name_mother',
     						'1ste Ouder / verzorger telefoon'=> 'phone_mother',
-    						'2de Ouder / verzorger'=> 'name_father',
+    						'Voornaam 2de Ouder / verzorger'=> 'first_name_father',
+    						'Achternaam 2de Ouder / verzorger'=> 'last_name_father',
     						'2de Ouder / verzorger telefoon'=> 'phone_father',
     						'Adres'=> 'address',
     						'Postcode'=> 'postalcode',
@@ -35,7 +38,7 @@
 	$items = $wpdb->get_results( 
 	"
 	SELECT User.email AS user_email, User.id AS user_id, User.*, School.* 
-	FROM {$table_users} AS User LEFT JOIN {$table_schools} AS School ON (User.school_id = School.id) ORDER BY User.id DESC
+	FROM {$table_users} AS User LEFT JOIN {$table_schools} AS School ON (User.school_id = School.id) ORDER BY School.name ASC
 	"
 	);
 
@@ -52,6 +55,7 @@ endif;
 	<?php
 	// Load data for view
 	$user = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$_GET['view']."", OBJECT);
+	$children = $wpdb->get_results( "SELECT Child.* FROM {$table_children} AS Child WHERE user_id = ".$user->id."");
 	?>
 		<?php    echo "<h2>" . __( 'View User', 'oscimp_trdom' ) . "</h2>"; ?>
 		<table style="padding: 5px;">
@@ -63,7 +67,25 @@ endif;
 		<?php endforeach; ?>
 	
 		</table>
+		<hr />
+				<?php    echo "<h2>" . __( 'Children', 'oscimp_trdom' ) . "</h2>"; ?>
+		<table style="padding: 5px;">
+			<tr>
+				<td>Naam</td>
+				<td>Groep</td>
+			</tr>
+		<?php foreach ($children as $value) : ?>
+			<tr>
+				<td><?php echo $value->first_name; ?> <?php echo $value->last_name; ?></td>
+				<td><?php echo $value->groep; ?></td>
+			</tr>
+		<?php endforeach; ?>
+	
+		</table>
+		
 	<?php endif; ?>
+	
+	
 	
 	<?php    echo "<h2>" . __( 'Users', 'oscimp_trdom' ) . "</h2>"; ?>
 <form method="POST">

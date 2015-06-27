@@ -31,7 +31,7 @@ Totaal aantal verkopen: &euro; <?php echo number_format( $submissionResult->Pric
 		</tr>
 		<?php foreach($salesPerChild as $child) : ?>
 		<tr>
-			<td><?php echo $child->name; ?></td>
+			<td><?php echo $child->first_name; ?></td>
 			<td>&euro; <?php echo number_format( $child->Price / 100, 2, ',', '.' ); ?></td>
 		</tr>
 		<?php endforeach; ?>

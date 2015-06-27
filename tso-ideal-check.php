@@ -1,7 +1,7 @@
 <?php
 define('WP_USE_THEMES', false);
 define('DONOTCACHEPAGE', true);
-
+date_default_timezone_set("Europe/Amsterdam");
 require($_SERVER['DOCUMENT_ROOT'] . '/wp-load.php');
 
 global $wp, $wp_query, $wp_the_query, $wp_rewrite, $wp_did_header, $wpdb;
@@ -72,8 +72,17 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			
 		// get card
 		$cardObject = $wpdb->get_results( "SELECT * FROM {$table_cards} WHERE price IN(".implode(',', $card).")");
-		
+		$description = $cardObject;
+				
 		foreach($childObject as $k=>$child){
+			
+			if(count($cardObject) == 1){
+				$card_desc = $cardObject[0]->description;
+				$card_price = $cardObject[0]->price;
+			}else{
+				$card_desc = $cardObject[$k]->description;
+				$card_price = $cardObject[$k]->price;
+			}
 			
 			if($transactionCheck==null){
 				
@@ -82,8 +91,8 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 				   "child_id" => $child->id,
 				   "school_id" => $userObject->school_id,
 				   "groep" => $child->groep,
-				   "card" => $cardObject[$k]->description,
-				   "price" => $cardObject[$k]->price,
+				   "card" => $card_desc,
+				   "price" => $card_price,
 				   "bank" => $session_data['bank'],
 				   "ec" => $ec,
 				   "trxid" => $trxid,
@@ -103,11 +112,43 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		
 	}else{
 			
+		$single_card= '';
+		foreach($card as $key_single_card=>$single_card){
+			if(isset($key_single_card)){
+				$single_card= $single_card;
+			}
+		}
 		// get card
-		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = ".$card[0]."", OBJECT);
+		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = ".$single_card."", OBJECT);
+		$description = $cardObject->description;
+		
+			if($transactionCheck==null){
+		// save
+		$wpdb->insert($table_submissions, array(
+		   "user_id" => $session_data['user_id'],
+		   "child_id" => $childObject[0]->id,
+		   "school_id" => $userObject->school_id,
+		   "groep" => $childObject[0]->groep,
+		   "card" => $description,
+		   "price" => $cardObject->price,
+		   "bank" => $session_data['bank'],
+		   "ec" => $ec,
+		   "trxid" => $trxid,
+		   "ip" => $_SERVER['REMOTE_ADDR'],
+		   "payment_status" => 1,
+		   "created_at" => date('Y-m-d H:i:s'),
+			));
+			
+			// get last id
+				 /*if($wpdb->insert_id==0){
+				 	$last_insert_id = 'Onbekend';
+				 }else{
+				 	$last_insert_id = $wpdb->insert_id;
+				 }*/
+		
+		}
 	}
 	
-		
 	// check if child has a group
 	/*if($childObject->groep == null){
 		// save
@@ -140,32 +181,13 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			);
 	}*/	
 	
-	if($transactionCheck==null){
-		// save
-		$wpdb->insert($table_submissions, array(
-		   "user_id" => $session_data['user_id'],
-		   "child_id" => $session_data['child_id'],
-		   "school_id" => $userObject->school_id,
-		   "groep" => $childObject->groep,
-		   "card" => $cardObject->description,
-		   "price" => $cardObject->price,
-		   "bank" => $session_data['bank'],
-		   "ec" => $ec,
-		   "trxid" => $trxid,
-		   "ip" => $_SERVER['REMOTE_ADDR'],
-		   "payment_status" => 1,
-		   "created_at" => date('Y-m-d H:i:s'),
-			));
-		
-
 		
 		/**
 		 * Compose Mail for Admin 
 		 */ 
 		$message_admin ='<h2>Strippenkaart</h2>';
 		$message_admin .='Er is een strippenkaart afgenomen:<br /><br />';
-		$message_admin .='Strippenkaart nummer: '.$last_insert_id.'<br />';
-
+	
 		if($userObject->first_name_mother !=null){
 			$message_admin .='1ste Ouder / verzorger: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
 			$message_admin .='1ste Ouder / verzorger telefoon: '.$userObject->phone_mother.' <br />';
@@ -177,10 +199,16 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		}
 		
 		$message_admin .='School: '.$schooldObject->name.'<br />';
+		
 		foreach($childObject as $k=>$child){
-			$message_admin .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
+			
+			if(count($description) == 1)
+			{
+				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';	
+			}else{
+				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+			}
 		}
-		$message_admin .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		
 		$message_admin .='<h2>Betaalgegevens</h2>';
 		$message_admin .='Betaald: Ja<br />';
@@ -193,12 +221,16 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		 */
 		$message_client ='<h2>Strippenkaart</h2>';
 		$message_client .='Bedankt voor het afnemen van een strippenkaart. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
-		$message_client .='Strippenkaart nummer: '.$last_insert_id.'<br />';
+		
 		$message_client .='School: '.$schooldObject->name.'<br />';
 		foreach($childObject as $k=>$child){
-			$message_client .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
+			if(count($description) == 1)
+			{
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';	
+			}else{
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+			}	
 		}
-		$message_client .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_client .='<h2>Betaalgegevens</h2>';
 		$message_client .='Betaald: Ja<br />';
 		$message_client .='Bank: '.$banks[$session_data['bank']].'<br />';
@@ -210,8 +242,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		 */
 		$message_school ='<h2>Strippenkaart</h2>';
 		$message_school .='Er is een strippenkaart afgenomen:<br /><br />';
-		$message_school .='Strippenkaart nummer: '.$last_insert_id.'<br />';
-
+		
 		if($userObject->first_name_mother !=null){
 			$message_school .='1ste Ouder / verzorger: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
 			$message_school .='1ste Ouder / verzorger telefoon: '.$userObject->phone_mother.' <br />';
@@ -224,16 +255,19 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 
 
 		foreach($childObject as $k=>$child){
-			$message_school .='Kind en groep: '.$child->first_name.' '.$childObject->last_name.' (groep: '.$child->groep.' )<br />';	
+			if(count($description) == 1)
+			{
+				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';	
+			}else{
+				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+			}	
 		}
-		$message_school .='Strippenkaart: '.$cardObject->description.'<br /><br />';
-		
+	
 		// Send mails
 		$functionsClass->SendMail('Strippenkaart afgenomen', $settings->tso_admin_mail, $message_admin);
 		$functionsClass->SendMail('Strippenkaart afgenomen', $userObject->email, $message_client);
 		$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);	
 
-	}
 	
 }else{
 
@@ -266,9 +300,27 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_client .='Bank: '.$banks[$session_data['bank']].'<br />';
 		$message_client .='EC: '.$ec.'<br />';
 		$message_client .='Transactie nummer: '.$trxid.'<br />';
+		
+		$message_client ='<h2>Strippenkaart</h2>';
+		$message_client .='Bedankt voor het afnemen van een strippenkaart. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
+		
+		$message_client .='School: '.$schooldObject->name.'<br />';
+		foreach($childObject as $k=>$child){
+			if(count($description) == 1)
+			{
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
+			}else{
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+			}	
+		}
+		$message_client .='<h2>Betaalgegevens</h2>';
+		$message_client .='Betaald: Ja<br />';
+		$message_client .='Bank: '.$banks[$session_data['bank']].'<br />';
+		$message_client .='EC: '.$ec.'<br />';
+		$message_client .='Transactie nummer: '.$trxid.'<br />';
 	}
 }	
 
 $_SESSION['message'] = $message_client;
 
-header('Location: /payment-done/');
+header('Location: '.$settings->url_payment_done);

@@ -17,13 +17,14 @@ if($_SESSION['user']==null){
 }
 
 $sessionUser = $_SESSION['user'];
+$sessionUserId = $sessionUser->id;
 
 /**
  * Get Children from user_id
  */ 
 $urlparts = explode('/',$_SERVER['REQUEST_URI']);
 
-$user = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$sessionUser->id, OBJECT );
+$user = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$sessionUserId, OBJECT );
 
 // groepen
 $groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a','5b','6','6a','6b','7','7a','7b','8','8a','8b');
@@ -31,14 +32,18 @@ $groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a'
 // card / strippenkaart
 $cards = $wpdb->get_results("SELECT * FROM {$table_cards}");
 
+$children = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE user_id = ".$sessionUserId);
+
+// groepen
+$groups = array('1','1a','1b','2','2a','2b','3','3a','3b','4','4a','4b','5','5a','5b','6','6a','6b','7','7a','7b','8','8a','8b');
+
 $functionsClass = new Functions(); 
  
 $error= ''; 
 $error_flag = true;
 
 if(isset($_POST['submit'])){
-	
-	
+
 	unset($_POST['submit']);
 			
 	if($error_flag==true){
@@ -72,7 +77,7 @@ if(isset($_POST['submit'])){
 		$wpdb->update( 
 		$table_users, 
 			$values, 
-				array( 'id' => $sessionUser->id )
+				array( 'id' => $sessionUserId )
 			);
 			
 			
@@ -100,12 +105,17 @@ if(isset($_POST['submit'])){
 		$message .='Telefoon bij onbereikbaar: '.$post_data[11].'<br />';
 		$message .='Relatie tot kind(eren): '.$post_data[12].'<br /><br />';
 		
-		$message .='<h3>Dokter</h3>';
+		$message .='<h3>Kinderen</h3>';
+		foreach($children as $child){
+			$message .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' )<br />';
+		}
+		
+		$message .='<br /><br /><h3>Dokter</h3>';
 		$message .='Naam: '.$post_data[13].'<br />';
 		$message .='Telefoon: '.$post_data[14].'<br />';
 		$message .='Adres: '.$post_data[15].'<br />';
 		$message .='Huisnummer: '.$post_data[16].'<br />';
-		$message .='Woonplaats: '.$post_data[17].'<br />';
+		$message .='Woonplaats: '.$post_data[17].'<br /><br />';
 		
 		$message .='<h3>Tandarts</h3>';
 		$message .='Naam: '.$post_data[18].'<br />';
@@ -129,12 +139,17 @@ if(isset($_POST['submit'])){
 		$message .='Telefoon bij onbereikbaar: '.$user->phone_unreachable.'<br />';
 		$message .='Relatie tot kind(eren): '.$user->relation_child.'<br /><br />';
 		
-		$message .='<h3>Dokter</h3>';
+		$message .='<h3>Kinderen</h3>';
+		foreach($children as $child){
+			$message .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' )<br />';
+		}
+		
+		$message .='<br /><br /><h3>Dokter</h3>';
 		$message .='Naam: '.$user->name_doc.'<br />';
 		$message .='Telefoon: '.$user->phone_doc.'<br />';
 		$message .='Adres: '.$user->address_doc.'<br />';
 		$message .='Huisnummer: '.$user->number_doc.'<br />';
-		$message .='Woonplaats: '.$user->city_doc.'<br />';
+		$message .='Woonplaats: '.$user->city_doc.'<br /><br />';
 		
 		$message .='<h3>Tandarts</h3>';
 		$message .='Naam: '.$user->name_dentist.'<br />';
@@ -237,5 +252,123 @@ if($user==null){
 </table>
 	        		<button type="submit" name="submit" class="">Profiel aanpassen</button>
 	        	</form>
+	        	
+<hr />
+<form method="POST">
+<h2>Kinderen</h2>
+<?php
+/* Action - Delete Child */
+if(isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])){
+	
+	$childObject = $wpdb->get_row( "SELECT * FROM {$table_children} WHERE id = ".$_GET['id'], OBJECT );
+	if($sessionUserId != $childObject->user_id || $childObject == null){
+		echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
+	}
+	
+	$wpdb->query( "DELETE FROM {$table_children} WHERE id = ".$_GET['id']);
+	echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
+}
+
+/* Action - Add Child */
+if(isset($_POST['add_child'])){
+	$error_child = false;
+	if(empty($_POST['child_first_name'])){
+		$error_child = true;
+		echo '- Voornnaam is niet ingevuld. <br />';	
+	}
+	if(empty($_POST['child_last_name'])){
+		$error_child = true;
+		echo '- Achternaam is niet ingevuld. <br />';	
+	}
+	
+	if($error_child == false){
+				
+			// save Child
+			$wpdb->insert( 
+			$table_children, 
+					array( 
+							'user_id'=>$sessionUserId,
+							'first_name'=> $_POST['child_first_name'],
+							'last_name'=>$_POST['child_last_name'],
+							'groep'=>$_POST['child_group'],
+		   					"created_at" => date('Y-m-d H:i:s'),
+					) 
+			);
+			
+			echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
+	}
+}
+?>
+<p>
+	<br />
+	Voornaam: <input type="text" name="child_first_name" value="" />
+	Achternaam: <input type="text" name="child_last_name" value="" />
+	Groep: 				<select name="child_group">
+	        					<?php foreach($groups as $group) : ?>
+	        						<option value="<?php echo $group; ?>"><?php echo $group; ?></option>
+	        					<?php endforeach; ?>
+	        				</select>
+	        				<button type="submit" name="add_child" class="">Kind toevoegen</button>
+</p>
+<hr />
+<?php
+/* Action - Delete Child */
+if(isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['id'])){
+	
+	$childObject = $wpdb->get_row( "SELECT * FROM {$table_children} WHERE id = ".$_GET['id'], OBJECT );
+	if($sessionUserId != $childObject->user_id || $childObject == null){
+		echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
+	}
+	
+	if(isset($_POST['edit_child'])){
+		$wpdb->update( 
+		$table_children, 
+		array(
+							'first_name'=> $_POST['child_first_name_edit'],
+							'last_name'=>$_POST['child_last_name_edit'],
+							'groep'=>$_POST['child_group_edit']), 
+				array( 'id' => $_GET['id'] )
+			);
+			
+			echo'<script>window.location="'.$settings->url_profile_edit.'"; </script>';
+	}
+	?>
+	
+	<form method="POST">
+		Voornaam: <input type="text" name="child_first_name_edit" value="<?php echo $childObject->first_name; ?>" />
+	Achternaam: <input type="text" name="child_last_name_edit" value="<?php echo $childObject->last_name; ?>" />
+	Groep: 				<select name="child_group_edit">
+							<option value="<?php echo $childObject->groep; ?>">Huidige klas: <?php echo $childObject->groep; ?></option>
+	        					<?php foreach($groups as $group) : ?>
+	        						<option value="<?php echo $group; ?>"><?php echo $group; ?></option>
+	        					<?php endforeach; ?>
+	        				</select>
+	        				<button type="submit" name="edit_child" class="">Kind aanpassen</button>
+	        				</form>
+	<?php 
+}
+?>
+<table id="table-children">
+	<tr>
+		<td>Voornaam</td>
+		<td>Acternaam</td>
+		<td>Groep</td>
+		<td>Actie</td>
+	</tr>
+	<?php 
+	foreach($children as $child) : ?>
+	<tr>
+		<td><?php echo $child->first_name; ?></td>
+		<td><?php echo $child->last_name; ?></td>
+		<td><?php echo $child->groep; ?></td>
+		<td><a href="?action=edit&id=<?php echo $child->id; ?>">Bewerken</a></td>
+	</tr>
+<?php endforeach; ?>
+</table>
+<p>
+	Bij verwijderen van uw kind dit per <a href="/contact/">mail</a> doorgeven.
+</p>
+	        		
+	        	</form>      	
 	        	
 	<?php } ?> 
