@@ -37,38 +37,34 @@ class Functions {
 	 */
 	public function SendMail($subject, $to, $_message)
 	{
+		global $wpdb;
+		
+		$table_settings = $wpdb->prefix . 'wv_reservations_settings';
+		$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
+		
 		if($to==null || $to == false){
 			return false;
 		}
 		
 		$emails=explode(',',$to);
-
-		// To send HTML mail, the Content-type header must be set
-		/*$headers  = 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 		
-		// Additional headers
-		$headers .= 'From: TSO <noreply@'.$_SERVER['HTTP_HOST'].'>' . "\r\n";
-		
-		if($bcc!=null){
-			$headers .= 'Bcc: '.$bcc . "\r\n";
-		}
-		
-		// Mail it
-		mail($to, $subject, $message, $headers);*/
+		//$username = 'info@websitevorm.nl';
+		//$password = 'wLap_h9jdIKooEQ3v33Xug';
 		
 		// Create the Transport
-		$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
-		  ->setUsername('info@websitevorm.nl')
-		  ->setPassword('GXnECZWS5BYZ2yn_CwvrJA')
-		  ;
+		/*$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
+		  ->setUsername($username) 
+		  ->setPassword($password)
+		  ;*/
+		// Create the Transport
+		$transport = Swift_MailTransport::newInstance();
 				
 		// Create the Mailer using your created Transport
 		$mailer = Swift_Mailer::newInstance($transport);
 		
 		// Create a message
 		$message = Swift_Message::newInstance($subject)
-		  ->setFrom(array('admin@'.$_SERVER['HTTP_HOST'] => 'De Lunchclub'))
+		  ->setFrom(array('admin@'.$_SERVER['HTTP_HOST'] => $settings->email_sender_name))
 		  ->setBody($_message)
 		  ->addPart($_message, 'text/html')
 		  ;
@@ -81,8 +77,25 @@ class Functions {
 		}  
 		
 		// Send the message
-		$mailer->send($message);
+		if($mailer->send($message)){
+			return true;	
+		}else{
+			return false;
+		}
 		
-		return true;
+					
+		// To send HTML mail, the Content-type header must be set
+		/*$headers  = 'MIME-Version: 1.0' . "\r\n";
+		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+		$headers .= 'From: '.$settings->email_sender_name.' <admin@'.$_SERVER['HTTP_HOST'] .'>' . "\r\n";
+		
+		
+		// Mail it
+		if(mail($to, $subject, $_message, $headers))
+		{
+			return true;
+		}else{
+			return false;
+		}*/
 	}
 }
