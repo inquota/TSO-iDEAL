@@ -43,6 +43,7 @@ if(isset($_POST['submit'])) :
 					'url_profile_created' => $_POST['url_profile_created'],
 					'url_password_change' => $_POST['url_password_change'],
 					'url_profile_edit_done' => $_POST['url_profile_edit_done'],
+					'url_password_forget' => $_POST['url_password_forget'],
 				), 
 				array( 'id' => 1 )
 			);
@@ -95,6 +96,7 @@ endif;
 							'URL voor profiel aangemaakt'=> 'url_profile_created',
 							'URL voor profiel wachtwoord aanpassen'=> 'url_password_change',
 							'URL voor profiel bewerken aangepast'=> 'url_profile_edit_done',
+							'URL voor wachtwoord vergeten'=> 'url_password_forget',
 						);
 		
 		foreach($array_urls as $key=>$url) : ?>

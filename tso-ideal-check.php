@@ -64,9 +64,9 @@ $childObject = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE id IN(
 // get school
 $schooldObject = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id =".$userObject->school_id, OBJECT );
 
+$card = array_filter($session_data['card']);
+
 if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
-	
-	$card = array_filter($session_data['card']);
 	
 	if(count($childObject) > 1){
 			
@@ -204,7 +204,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			
 			if(count($description) == 1)
 			{
-				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';	
+				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
 				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
 			}
@@ -226,7 +226,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		foreach($childObject as $k=>$child){
 			if(count($description) == 1)
 			{
-				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';	
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
 				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
 			}	
@@ -257,12 +257,12 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		foreach($childObject as $k=>$child){
 			if(count($description) == 1)
 			{
-				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';	
+				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
 				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
 			}	
 		}
-	
+		
 		// Send mails
 		$functionsClass->SendMail('Strippenkaart afgenomen', $settings->tso_admin_mail, $message_admin);
 		$functionsClass->SendMail('Strippenkaart afgenomen', $userObject->email, $message_client);
@@ -271,15 +271,62 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 	
 }else{
 
-
-	if($transactionCheck==null){
+	if(count($childObject) > 1){
+			
+		// get card
+		$cardObject = $wpdb->get_results( "SELECT * FROM {$table_cards} WHERE price IN(".implode(',', $card).")");
+		$description = $cardObject;
+				
+		foreach($childObject as $k=>$child){
+			
+			if(count($cardObject) == 1){
+				$card_desc = $cardObject[0]->description;
+				$card_price = $cardObject[0]->price;
+			}else{
+				$card_desc = $cardObject[$k]->description;
+				$card_price = $cardObject[$k]->price;
+			}
+			
+			if($transactionCheck==null){
+				
+				$wpdb->insert($table_submissions, array(
+				   "user_id" => $session_data['user_id'],
+				   "child_id" => $child->id,
+				   "school_id" => $userObject->school_id,
+				   "groep" => $child->groep,
+				   "card" => $card_desc,
+				   "price" => $card_price,
+				   "bank" => $session_data['bank'],
+				   "ec" => $ec,
+				   "trxid" => $trxid,
+				   "ip" => $_SERVER['REMOTE_ADDR'],
+				   "payment_status" => 0,
+				   "created_at" => date('Y-m-d H:i:s'),
+				));
+			
+			}
+		}
+		
+	}else{
+			
+		$single_card= '';
+		foreach($card as $key_single_card=>$single_card){
+			if(isset($key_single_card)){
+				$single_card= $single_card;
+			}
+		}
+		// get card
+		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = ".$single_card."", OBJECT);
+		$description = $cardObject->description;
+		
+			if($transactionCheck==null){
 		// save
 		$wpdb->insert($table_submissions, array(
 		   "user_id" => $session_data['user_id'],
-		   "child_id" => $session_data['child_id'],
+		   "child_id" => $childObject[0]->id,
 		   "school_id" => $userObject->school_id,
-		   "groep" => $childObject->groep,
-		   "card" => $cardObject->description,
+		   "groep" => $childObject[0]->groep,
+		   "card" => $description,
 		   "price" => $cardObject->price,
 		   "bank" => $session_data['bank'],
 		   "ec" => $ec,
@@ -289,21 +336,18 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		   "created_at" => date('Y-m-d H:i:s'),
 			));
 		
+		}
+	}
+		
 		$message_client ='<h2>Strippenkaart</h2>';
 		$message_client .='Helaas, het afnemen van een strippenkaart is helaas niet gelukt. Probeert u het nogmaals. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
 		$message_client .='School: '.$schooldObject->name.'<br />';
-		$message_client .='Kind: '.$childObject->first_name.' '.$childObject->last_name.'<br />';
-		$message_client .='Groep: '.$childObject->groep.'<br />';
-		$message_client .='Strippenkaart: '.$cardObject->description.'<br /><br />';
 		$message_client .='<h2>Betaalgegevens</h2>';
 		$message_client .='Betaald: <strong>Nee</strong><br />';
 		$message_client .='Bank: '.$banks[$session_data['bank']].'<br />';
 		$message_client .='EC: '.$ec.'<br />';
 		$message_client .='Transactie nummer: '.$trxid.'<br />';
-		
-		$message_client ='<h2>Strippenkaart</h2>';
-		$message_client .='Bedankt voor het afnemen van een strippenkaart. Hieronder vind u een overzicht van uw gegevens:<br /><br />';
-		
+	
 		$message_client .='School: '.$schooldObject->name.'<br />';
 		foreach($childObject as $k=>$child){
 			if(count($description) == 1)
@@ -318,7 +362,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$message_client .='Bank: '.$banks[$session_data['bank']].'<br />';
 		$message_client .='EC: '.$ec.'<br />';
 		$message_client .='Transactie nummer: '.$trxid.'<br />';
-	}
+
 }	
 
 $_SESSION['message'] = $message_client;

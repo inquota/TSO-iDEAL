@@ -232,3 +232,6 @@ ALTER TABLE `tso_tso_users`
   
 ALTER TABLE `tso_tso_settings` ADD `tso_admin_mail` VARCHAR(40) NOT NULL AFTER `targetpay_testmode`;
 ALTER TABLE `tso_tso_settings` ADD `url_password_change` VARCHAR(255) NOT NULL AFTER `url_profile_created`;
+ALTER TABLE `tso_tso_users` ADD `toelichting1` TEXT NULL AFTER `school_id`, ADD `toelichting2` TEXT NULL AFTER `toelichting1`, ADD `toelichting3` TEXT NULL AFTER `toelichting2`;
+
+ALTER TABLE `tso_tso_settings` ADD `url_password_forget` VARCHAR(299) NOT NULL AFTER `url_profile_edit_done`;

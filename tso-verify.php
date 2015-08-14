@@ -87,6 +87,11 @@ if($user != null){
 		$message .='Huisnummer: '.$userObject->number_dentist.'<br />';
 		$message .='Woonplaats: '.$userObject->city_dentist.'<br /><br />';
 		
+		$message .='<h3>Toelichting</h3>';
+		$message .='Mijn kind(eren) blijft/blijven niet op vaste dagen over: '.$userObject->toelichting1.'<br />';
+		$message .='Mijn kinderen blijven niet op de zelfde dagen over: '.$userObject->toelichting2.'<br />';
+		$message .='Bijzonderheden kind(eren): '.$userObject->toelichting3.'<br />';
+		
 		// Send mails
 		$functionsClass->SendMail('Aanmelding', $settings->tso_admin_mail, $message);
 		

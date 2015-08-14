@@ -25,12 +25,18 @@ if(isset($_POST['login'])){
 	$user = $wpdb->get_row("SELECT * FROM {$table_users} WHERE email = '".$email."'");
 	
 	if($user){
-	
+		
+		if($user->verified == null) {
+			echo '<script>alert("U heeft uw account nog niet bevestigd"); </script>';
+			echo'<script>window.location="/"; </script>';
+			exit;
+		}
+		
 		if($passwordClass->validate_password($password, $user->password)){
 			$_SESSION['user'] = $user;
 			echo'<script>window.location="'.$settings->url_card_overview.'"; </script>';
 		}else{
-			echo 'invalid';
+			echo 'E-mail / wachtwoord combinatie komen niet overeen';
 		}	
 	}
 }

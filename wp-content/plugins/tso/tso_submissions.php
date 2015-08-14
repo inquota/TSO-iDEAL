@@ -31,8 +31,9 @@ SELECT
 	User.last_name_father,
 	User.first_name_mother,
 	User.last_name_mother,
-	Child.first_name AS name_child,
-	School.name AS name_school
+	School.name AS name_school,
+	Child.first_name AS first_name,
+	Child.last_name AS last_name
 FROM 
 	{$table_submissions} as Submission 
 	LEFT JOIN {$table_users} AS User ON (Submission.user_id=User.id) 
@@ -97,11 +98,11 @@ endif;
 			<td class="column-columnname"><?php echo $booking->first_name_mother; ?> <?php echo $booking->last_name_mother; ?> -  <?php echo $booking->first_name_father; ?> <?php echo $booking->last_name_father; ?></td>
 			<td class="column-columnname"><?php echo $booking->name_school; ?></td>
 			<td class="column-columnname"><?php echo $booking->groep; ?></td>
-			<td class="column-columnname"><?php echo $booking->name_child; ?></td>
+			<td class="column-columnname"><?php echo $booking->first_name . ' ' . $booking->last_name; ?></td>
 			<td class="column-columnname"><?php echo $booking->card; ?></td>
 			<td class="column-columnname"><?php if($booking->payment_status==1) { echo "<span style='color: green;'>Ja</span>"; }else{ echo "<span style='color: red;'>Nee</span>"; } ?></td>
 			<td class="column-columnname"><?php if(!isset($banks[$booking->bank])) { echo 'Onbekend'; }else{ echo $banks[$booking->bank]; } ?></td>
-			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($booking->created_at)); ?></td>
+			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($booking->created_at . "+2 hours")); ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
