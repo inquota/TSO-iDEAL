@@ -1,7 +1,4 @@
 <?php
-/*
-Template Name: TSO - Card - Add (Strippentkaart afnemen)
-*/
 global $wpdb;
 
 $table_children = $wpdb->prefix . 'tso_children';
@@ -42,10 +39,14 @@ $functionsClass = new Functions();
 $error= ''; 
 $error_flag = true;
 
+$days_care = array('Maandag', 'Dinsdag', 'Donderdag', 'Vrijdag');
+
+$days_care_Db = explode(',',$user->days_care);
+
 if(isset($_POST['submit'])){
 
 	unset($_POST['submit']);
-			
+		
 	if($error_flag==true){
 			// save
 			$values = 	array( 
@@ -71,7 +72,11 @@ if(isset($_POST['submit'])){
 						'phone_dentist'=>$_POST['phone_dentist'],
 						'address_dentist'=>$_POST['address_dentist'],
 						'number_dentist'=>$_POST['number_dentist'],
-						'city_dentist'=>$_POST['city_dentist'],  
+						'city_dentist'=>$_POST['city_dentist'],
+						'toelichting1'=>$_POST['toelichting1'],
+						'toelichting2'=>$_POST['toelichting2'],
+						'toelichting3'=>$_POST['toelichting3'],  
+						'days_care' => implode(',', $_POST['days_care']),
 				);
 				
 		$wpdb->update( 
@@ -123,6 +128,10 @@ if(isset($_POST['submit'])){
 		$message .='Adres: '.$post_data[20].'<br />';
 		$message .='Huisnummer: '.$post_data[21].'<br />';
 		$message .='Woonplaats: '.$post_data[22].'<br /><br />';
+		$message .='Mijn kind(eren) blijft/blijven niet op vaste dagen over: '.$post_data[23].'<br /><br />';
+		$message .='Mijn kinderen blijven niet op de zelfde dagen over: '.$post_data[24].'<br /><br />';
+		$message .='Bijzonderheden kind(eren): '.$post_data[25].'<br /><br />';
+		$message .='Dagen opvang: '.$post_data[26].'<br /><br />';
 		$message .='<hr />';	
 		$message .='<h1>Oude gegevens</h1>';	
 		$message .='<h2>Gegevens ouders</h2>';
@@ -157,6 +166,10 @@ if(isset($_POST['submit'])){
 		$message .='Adres: '.$user->address_dentist.'<br />';
 		$message .='Huisnummer: '.$user->number_dentist.'<br />';
 		$message .='Woonplaats: '.$user->city_dentist.'<br /><br />';
+		$message .='Mijn kind(eren) blijft/blijven niet op vaste dagen over: '.$user->toelichting1.'<br /><br />';
+		$message .='Mijn kinderen blijven niet op de zelfde dagen over: '.$user->toelichting2.'<br /><br />';
+		$message .='Bijzonderheden kind(eren): '.$user->toelichting3.'<br /><br />';
+		$message .='Dagen opvang: '.$user->days_care.'<br /><br />';
 		
 		// Send mails
 		$functionsClass->SendMail('Account gewijzigd van aanmelding', $settings->tso_admin_mail, $message);
@@ -234,7 +247,6 @@ if($user==null){
 	</tr>
 </table>
 
-
 <h2>Gegevens Tandarts</h2>
 <table id="table-dentist">
 	<tr>
@@ -250,12 +262,41 @@ if($user==null){
 		<td><input type="text" required="required" name="city_dentist" value="<?php echo $user->city_dentist; ?>" /></td>
 	</tr>
 </table>
+
+<h2>Gegevens Kinderen</h2>
+<table id="table-children">
+			<tr>
+		<td>Dagen opvang</td>
+		<td>
+			<?php foreach($days_care as $key=>$day) : ?>
+				<?php if(isset($days_care_Db[$key]) && $days_care_Db[$key] == $day) : ?>
+					<input type="checkbox"  name="days_care[]" checked="checked"  value="<?php echo $day; ?>" /> <?php echo $day; ?>
+				<?php else : ?>
+					<input type="checkbox"  name="days_care[]" value="<?php echo $day; ?>" /> <?php echo $day; ?>	
+				<?php endif; ?>		
+			<?php endforeach; ?>
+		</td>
+	</tr>
+			<tr>
+		<td>Mijn kind(eren) blijft/blijven niet op vaste dagen over.</td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting1"><?php echo $user->toelichting1; ?></textarea></td>
+	</tr>
+	<tr>
+		<td>Mijn kinderen blijven niet op de zelfde dagen over.</td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting2"><?php echo $user->toelichting2; ?></textarea></td>
+	</tr>
+	<tr>
+		<td>Bijzonderheden kind(eren).</td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting3"><?php echo $user->toelichting3; ?></textarea></td>
+	</tr>
+</table>
 	        		<button type="submit" name="submit" class="">Profiel aanpassen</button>
 	        	</form>
 	        	
 <hr />
 <form method="POST">
-<h2>Kinderen</h2>
+<h2>Kinderen beheren</h2>
+
 <?php
 /* Action - Delete Child */
 if(isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])){
@@ -351,7 +392,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'edit' && isset($_GET['id'])){
 <table id="table-children">
 	<tr>
 		<td>Voornaam</td>
-		<td>Acternaam</td>
+		<td>Achternaam</td>
 		<td>Groep</td>
 		<td>Actie</td>
 	</tr>

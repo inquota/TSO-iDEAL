@@ -12,7 +12,12 @@
 	$total = $wpdb->get_var( "SELECT COUNT(`id`) FROM {$table_children}" );
 	$num_of_pages = ceil( $total / $limit );
 	
-	$salesPerChild = $wpdb->get_results("SELECT SUM(`price`) AS Price, Child.*   FROM {$table_submissions} AS Submission LEFT JOIN {$table_children} AS Child ON (Child.id = Submission.child_id) GROUP BY `child_id`");
+	$salesPerChild = $wpdb->get_results("SELECT SUM(`price`) AS Price, Child.*, School.*   FROM {$table_submissions} AS Submission 
+	LEFT JOIN {$table_children} AS Child ON (Child.id = Submission.child_id) 
+	LEFT JOIN {$table_users} AS User ON (Child.user_id=User.id) 
+	LEFT JOIN {$table_schools} AS School ON (School.id=User.school_id)
+	GROUP BY `child_id`");
+	
 	$salesPerSchool = $wpdb->get_results("SELECT SUM(`price`) AS Price, School.*   FROM {$table_submissions} AS Submission LEFT JOIN {$table_schools} AS School ON (School.id = Submission.school_id) GROUP BY `school_id`");
 
 	$submissionResult = $wpdb->get_row( "SELECT SUM(`price`) AS Price FROM {$table_submissions}", OBJECT );
@@ -27,11 +32,15 @@ Totaal aantal verkopen: &euro; <?php echo number_format( $submissionResult->Pric
 	<table>
 		<tr>
 			<td>Naam</td>
+			<td>Groep</td>
+			<td>School</td>
 			<td>Bedrag</td>
 		</tr>
 		<?php foreach($salesPerChild as $child) : ?>
 		<tr>
-			<td><?php echo $child->first_name; ?></td>
+			<td><?php echo $child->first_name; ?> <?php echo $child->last_name; ?></td>
+			<td><?php echo $child->groep; ?></td>
+			<td><?php echo $child->name; ?></td>
 			<td>&euro; <?php echo number_format( $child->Price / 100, 2, ',', '.' ); ?></td>
 		</tr>
 		<?php endforeach; ?>

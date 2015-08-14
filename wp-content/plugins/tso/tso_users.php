@@ -37,7 +37,7 @@
 	
 	$items = $wpdb->get_results( 
 	"
-	SELECT User.email AS user_email, User.id AS user_id, User.*, School.* 
+	SELECT User.email AS user_email, User.id AS user_id, User.*, User.created_at AS userCreatedAt, School.* 
 	FROM {$table_users} AS User LEFT JOIN {$table_schools} AS School ON (User.school_id = School.id) ORDER BY School.name ASC
 	"
 	);
@@ -139,7 +139,7 @@ endif;
 			<td class="column-columnname"><?php echo $item->address; ?></td>
 			<td class="column-columnname"><?php echo $item->postalcode; ?></td>
 			<td class="column-columnname"><?php echo $item->city; ?></td>
-			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->created_at)); ?></td>
+			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->userCreatedAt)); ?></td>
 			<td class="column-columnname"><a href="?page=users&view=<?php echo $item->user_id; ?>">View</a></td>
         </tr>
         <?php endforeach; ?>

@@ -31,11 +31,16 @@ if(isset($_POST['submit'])){
 	$child_first_names = $_POST['data']['Child']['child_first_name'];
 	$child_groups = $_POST['data']['Child']['group'];
 	
+	$userCount = $wpdb->get_row( "SELECT COUNT(*) AS Total FROM {$table_users} WHERE email='".$_POST['email']."'", OBJECT );
+	
 	if(empty($_POST['email'])){
 		$error .= 'U heeft geen e-mail opgegeven.<br />';
 		$error_flag = false;
 	}elseif(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
 		$error .= 'Geen geldig e-mail.';
+		$error_flag = false;
+	}elseif($userCount->Total == 1){
+		$error .= 'E-mail is al bij ons aangemeld. Wachtwoord vergeten? Klik <a href="'.$settings->url_password_forget.'">hier</a>.';
 		$error_flag = false;
 	}
 
@@ -196,7 +201,10 @@ if(isset($_POST['submit'])){
 						'number_dentist'=>$_POST['number_dentist'],
 						'city_dentist'=>$_POST['city_dentist'], 
 						'days_care'=>implode(',', $_POST['days_care']),
-						'school_id'=>$_POST['school'], 
+						'school_id'=>$_POST['school'],
+						'toelichting1'=>$_POST['toelichting1'],
+						'toelichting2'=>$_POST['toelichting2'],
+						'toelichting3'=>$_POST['toelichting3'], 
 						"ip" => $_SERVER['REMOTE_ADDR'],
 	   					"created_at" => date('Y-m-d H:i:s'),
 	   					"hash" => $hash,
@@ -250,7 +258,7 @@ if(isset($_POST['submit'])){
 
 <form method="POST">
 		<?php if(isset($error)) {
-			echo $error;
+			echo "<p style='margin-bottom: 20px;'><span style='color: red; font-weight: bold;'>".$error."</span></p>";
 		}?>
 <h2>Gegevens ouders</h2>
 <table id="table-parents">
@@ -334,7 +342,7 @@ if(isset($_POST['submit'])){
 		<td>
 			<input type="checkbox"  name="days_care[]" value="Maandag" /> Maandag
 			<input type="checkbox"  name="days_care[]" value="Dinsdag" /> Dinsdag
-			<input type="checkbox"  name="days_care[]" value="Woensdag" /> Woensdag
+			<!--<input type="checkbox"  name="days_care[]" value="Woensdag" /> Woensdag-->
 			<input type="checkbox"  name="days_care[]" value="Donderdag" /> Donderdag
 			<input type="checkbox"  name="days_care[]" value="Vrijdag" /> Vrijdag
 		</td>
@@ -353,11 +361,10 @@ if(isset($_POST['submit'])){
 					Groep 
 
 	        				<select name="data[Child][group][]">
-	        					<option selected="selected" value="">--- Maak een keuze ----</option>
 	        					<?php foreach($groups as $group) : ?>
 	        						<option value="<?php echo $group; ?>"><?php echo $group; ?></option>
 	        					<?php endforeach; ?>
-	        				</select>
+	        				</select> (<strong>Kies de juiste groep van uw kind</strong>)
 	        		<?php /*		
 	        		Geslacht 
 	        			<input type="radio" name="data[Child][child_gender][]" value="jongen" /> Jongen 
@@ -368,11 +375,23 @@ if(isset($_POST['submit'])){
 			 <a href="#" id="child_add">Kind toevoegen</a>
 			</td>
 	</tr>
+	<tr>
+		<td>Mijn kind(eren) blijft/blijven niet op vaste dagen over.</td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting1"></textarea></td>
+	</tr>
+	<tr>
+		<td>Mijn kinderen blijven niet op de zelfde dagen over.</td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting2"></textarea></td>
+	</tr>
+	<tr>
+		<td>Bijzonderheden kind(eren).</td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting3"></textarea></td>
+	</tr>
 	<?php endif; ?>
 </table>
 <hr />
 <p>
-	<input type="checkbox" value="agree" name="t_and_c" required="required"  /> Ik ga akkoord met de <a href="https://delunchclub-opo.nl/?p=63" title="algemene voorwaarden">algemene voorwaarden</a>	
+	<input type="checkbox" value="agree" name="t_and_c" required="required"  /> Ik ga akkoord met de <a href="https://delunchclub-opo.nl/?p=63" title="algemene voorwaarden" target="_blank">algemene voorwaarden</a>	
 </p>
 
 <p>
