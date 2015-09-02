@@ -18,7 +18,7 @@
 
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_cards} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo'<script>window.location="/wp-admin/admin.php?page=cards"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=cards"; </script>';
 endif;
 
 
@@ -34,7 +34,7 @@ if(isset($_POST['insert'])) :
 				'created_at' => date('Y-m-d H:i:s'),	// string
 			)
 		);
-	echo'<script>window.location="/wp-admin/admin.php?page=cards"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=cards"; </script>';
 endif;
 
 if(isset($_POST['edit'])) :
@@ -50,7 +50,7 @@ if(isset($_POST['edit'])) :
 			),
 			array('id' => $_POST['edit_id'])
 		);
-	echo'<script>window.location="/wp-admin/admin.php?page=cards"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=cards"; </script>';
 endif;
 ?>
 

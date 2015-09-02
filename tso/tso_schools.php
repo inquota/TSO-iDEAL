@@ -1,5 +1,6 @@
 <?php
 	global $wpdb;
+	$site_url = site_url();
 	$table_schools = $wpdb->prefix . 'tso_schools';
 		
 	$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
@@ -19,7 +20,7 @@
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_schools} WHERE id IN (".implode(',', $_POST['id']).")");
 	header('Location: ');
-	echo'<script>window.location="/wp-admin/admin.php?page=schools"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=schools"; </script>';
 endif;
 
 
@@ -34,7 +35,7 @@ if(isset($_POST['insert'])) :
 				'created_at' => date('Y-m-d H:i:s'),	// string
 			)
 		);
-	echo'<script>window.location="/wp-admin/admin.php?page=schools"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=schools"; </script>';
 endif;
 
 if(isset($_POST['edit'])) :
@@ -49,7 +50,7 @@ if(isset($_POST['edit'])) :
 			),
 			array( 'id' => $_POST['edit_id'] )
 		);
-	echo'<script>window.location="/wp-admin/admin.php?page=schools"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=schools"; </script>';
 endif;
 ?>
 

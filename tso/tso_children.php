@@ -1,5 +1,6 @@
 <?php
 	global $wpdb;
+	$site_url = site_url();
 	$table_children = $wpdb->prefix . 'tso_children';
 	$table_schools = $wpdb->prefix . 'tso_schools';
 	$table_users = $wpdb->prefix . 'tso_users';
@@ -28,7 +29,7 @@
 	
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_children} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=children">';
+	echo '<meta http-equiv="refresh" content="0; URL='.$site_url.'/wp-admin/admin.php?page=children">';
 endif;
 ?>
 

@@ -1,5 +1,6 @@
 <?php
 	global $wpdb;
+	$site_url = site_url();
 	$table_users = $wpdb->prefix . 'tso_users';
 	$table_schools = $wpdb->prefix . 'tso_schools';
 	$table_children = $wpdb->prefix . 'tso_children';
@@ -44,7 +45,7 @@
 
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_users} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo'<script>window.location="/wp-admin/admin.php?page=users"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=users"; </script>';
 endif;
 ?>
 
