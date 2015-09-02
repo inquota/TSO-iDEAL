@@ -1,5 +1,6 @@
 <?php
 global $wpdb;
+$site_url = site_url();
 $table_submissions = $wpdb->prefix . 'tso_submissions';
 $table_schools = $wpdb->prefix . 'tso_schools';
 $table_users = $wpdb->prefix . 'tso_users';
@@ -44,7 +45,7 @@ FROM
 
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_submissions} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=tso">';
+	echo '<meta http-equiv="refresh" content="0; URL='.$site_url.'/wp-admin/admin.php?page=tso">';
 endif;
 
 

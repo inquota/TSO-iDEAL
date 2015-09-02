@@ -1,6 +1,7 @@
 <?php
 
 global $wpdb;
+$site_url = site_url();
 $table_settings = $wpdb->prefix . 'tso_settings';
 
 // get settings
@@ -47,7 +48,7 @@ if(isset($_POST['submit'])) :
 				), 
 				array( 'id' => 1 )
 			);
-	echo'<script>window.location="/wp-admin/admin.php?page=settings"; </script>';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=settings"; </script>';
 endif;
 ?>
 
