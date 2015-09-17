@@ -38,7 +38,13 @@ $targetpay= array(
 	
 );
 
-$session_data = $_SESSION['data'];
+if(isset($_SESSION['data'])) {
+	$session_data = $_SESSION['data'];	
+}else{
+	mail('jarahzakelijk@gmail.com', 'Debug info', print_r($_SESSION,1));
+	header('Location: /');
+	exit;
+}
 
 $trxid = $_GET['trxid'];
 $ec = $_GET['ec'];		
@@ -99,14 +105,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 				   "ip" => $_SERVER['REMOTE_ADDR'],
 				   "payment_status" => 1,
 				   "created_at" => date('Y-m-d H:i:s'),
-				));
-				
-				// get last id
-				 if($wpdb->insert_id==0){
-				 	$last_insert_id = 'Onbekend';
-				 }else{
-				 	$last_insert_id = $wpdb->insert_id;
-				 }
+				));	
 			}
 		}
 		
@@ -122,7 +121,7 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$cardObject = $wpdb->get_row( "SELECT * FROM {$table_cards} WHERE price = ".$single_card."", OBJECT);
 		$description = $cardObject->description;
 		
-			if($transactionCheck==null){
+	if($transactionCheck==null){
 		// save
 		$wpdb->insert($table_submissions, array(
 		   "user_id" => $session_data['user_id'],
@@ -139,49 +138,10 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		   "created_at" => date('Y-m-d H:i:s'),
 			));
 			
-			// get last id
-				 /*if($wpdb->insert_id==0){
-				 	$last_insert_id = 'Onbekend';
-				 }else{
-				 	$last_insert_id = $wpdb->insert_id;
-				 }*/
 		
 		}
 	}
-	
-	// check if child has a group
-	/*if($childObject->groep == null){
-		// save
-		$wpdb->update( 
-		$table_children, 
-				array( 
-					'groep' => $session_data['groep'],
-				), 
-				array( 'id' => $session_data['child_id'] )
-			);
-	}elseif($childObject->groep != $session_data['school']){
-		// save
-		$wpdb->update( 
-		$table_children, 
-				array( 
-					'groep' => $session_data['groep'],
-				), 
-				array( 'id' => $session_data['child_id'] )
-			);
-	}
-		// check if child has a group
-	if($childObject->card == null){
-		// save
-		$wpdb->update( 
-		$table_children, 
-				array( 
-					'card' => $session_data['card'],
-				), 
-				array( 'id' => $session_data['child_id'] )
-			);
-	}*/	
-	
-		
+			
 		/**
 		 * Compose Mail for Admin 
 		 */ 
@@ -205,7 +165,11 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			{
 				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
-				$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+				if(count($description) == 1) {
+					$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+				}else{
+					$message_admin .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+				}
 			}
 		}
 		
@@ -227,7 +191,11 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			{
 				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
-				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+				if(count($description) == 1) {
+					$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+				}else{
+					$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+				}
 			}	
 		}
 		$message_client .='<h2>Betaalgegevens</h2>';
@@ -258,7 +226,11 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			{
 				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
-				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+				if(count($description) == 1) {
+					$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+				}else{
+					$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+				}
 			}	
 		}
 		
@@ -266,8 +238,6 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		$functionsClass->SendMail('Strippenkaart afgenomen', $settings->tso_admin_mail, $message_admin);
 		$functionsClass->SendMail('Strippenkaart afgenomen', $userObject->email, $message_client);
 		$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);
-		$functionsClass->SendMail('Strippenkaart afgenomen', 'jarahzakelijk@gmail.com', $message_admin);	
-
 	
 }else{
 
@@ -355,7 +325,12 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		{
 			$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 		}else{
-			$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+			if(count($description) == 1) {
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
+			}else{
+				$message_client .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[$k]->description.'<br />';
+			}
+			
 		}	
 	}
 	$message_client .='<h2>Betaalgegevens</h2>';
