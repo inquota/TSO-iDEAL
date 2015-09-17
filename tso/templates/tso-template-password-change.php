@@ -12,7 +12,7 @@ $table_users = $wpdb->prefix . 'tso_users';
 $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 
 // check if user is logged in
-if(isset($_SESSION['user']) && $_SESSION['user']==null){
+if(empty($_SESSION['user'])){
 	echo'<script>window.location="'.$settings->url_login.'"; </script>';
 }
 
