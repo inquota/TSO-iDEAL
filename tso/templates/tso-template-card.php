@@ -14,7 +14,7 @@ $table_settings = $wpdb->prefix . 'tso_settings';
 $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 
 // check if user is logged in
-if(isset($_SESSION['user']) && $_SESSION['user']==null){
+if(empty($_SESSION['user'])){
 	echo'<script>window.location="'.$settings->url_login.'"; </script>';
 }
 
@@ -165,71 +165,70 @@ if(isset($_POST['submit'])){
 	}
 }						
 ?>
-<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> - 
-<a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> -
-<a href="<?php echo $settings->url_password_change; ?>">Wachtwoord opnieuw instellen</a> - 
-<a href="?action=logout">Uitloggen</a>
-<hr />
-<?php
-if($user==null){
-	echo "Gebruiker bestaat niet";
-}else{
-?>
-	        	
-<?php if(!$results) : ?>
-	U heeft geen kinderen toegevoegd	
+
+
+<?php if(!isset($cards) || $cards == null ) : ?>
+	<span style="color: #FF0000;">Er is geen strippenkaart beschikbaar. Neem contact op met de beheerder.</span>
 <?php else : ?>
-	<form method="POST">
-	<table>
-		<tr>
-			<th style="padding: 5px;">School</th>
-			<th style="padding: 5px;">Naam</th>
-			<th style="padding: 5px;">Groep</th>
-			<th style="padding: 5px;">Acties</th>
-		</tr>
-	<?php foreach($results as $item) : ?>
-		<tr>
-			<td style="padding: 5px;"><?php echo $item->name_school; ?></td>
-			<td style="padding: 5px;"><?php echo $item->first_name; ?> <?php echo $item->last_name; ?></td>
-			<td style="padding: 5px;"><?php echo $item->groep; ?></td>
-			<td style="padding: 5px;">
-				<?php if(!isset($cards) || $cards == null ) : ?>
-					<span style="color: #FF0000;">Er is geen strippenkaart beschikbaar. Neem contact op met de beheerder.</span>
-				<?php else : ?>
-				<select name="card[]">
-					<option selected="selected" value="">--- Maak een keuze ----</option>
-					<?php foreach($cards as $key=>$card) : ?>
-						<option value="<?php echo $card->price; ?>"><?php echo $card->description; ?></option>
-					<?php endforeach; ?>
-				</select>
-				<?php endif; ?>
-				<input type="checkbox" name="child[]" value="<?php echo $item->id; ?>" />
-			</td>
-		</tr>
-	<?php endforeach; ?>
-	</table>
+	<a href="<?php echo $settings->url_card_overview; ?>">Strippenkaart</a> - 
+	<a href="<?php echo $settings->url_profile_edit; ?>">Gegevens wijzigen</a> -
+	<a href="<?php echo $settings->url_password_change; ?>">Wachtwoord opnieuw instellen</a> - 
+	<a href="?action=logout">Uitloggen</a>
 	<hr />
-	<p>
-		<?php if($_SERVER['REMOTE_ADDR'] != '92.111.180.150') { ?>
-		Betaling onder constructie.
-		<?php }else { ?>
+	<?php
+	if($user==null){
+		echo "Gebruiker bestaat niet";
+	}else{
+	?>
+		        	
+	<?php if(!$results) : ?>
+		U heeft geen kinderen toegevoegd	
+	<?php else : ?>
+		<form method="POST">
+		<table>
+			<tr>
+				<th style="padding: 5px;">School</th>
+				<th style="padding: 5px;">Naam</th>
+				<th style="padding: 5px;">Groep</th>
+				<th style="padding: 5px;">Acties</th>
+			</tr>
+		<?php foreach($results as $item) : ?>
+			<tr>
+				<td style="padding: 5px;"><?php echo $item->name_school; ?></td>
+				<td style="padding: 5px;"><?php echo $item->first_name; ?> <?php echo $item->last_name; ?></td>
+				<td style="padding: 5px;"><?php echo $item->groep; ?></td>
+				<td style="padding: 5px;">
+					<select name="card[]">
+						<option selected="selected" value="">--- Maak een keuze ----</option>
+						<?php foreach($cards as $key=>$card) : ?>
+							<option value="<?php echo $card->price; ?>"><?php echo $card->description; ?></option>
+						<?php endforeach; ?>
+					</select>
+					<input type="checkbox" name="child[]" value="<?php echo $item->id; ?>" />
+				</td>
+			</tr>
+		<?php endforeach; ?>
+		</table>
+		<hr />
+		<p>
+			
+		Kies een bank: <select name="bank" id="bank"><option selected value="">Kies uw bank...</option>
+	<option value="0031">ABN Amro</option>
+	<option value="0721">ING</option>
+	<option value="0021">Rabobank</option>
+	<option value="0751">SNS Bank</option>
+	<option value="0761">ASN Bank</option>
+	<option value="0801">Knab</option>
+	<option value="0771">RegioBank</option>
+	<option value="0511">Triodos Bank</option>
+	<option value="0161">Van Lanschot Bankiers</option></select>	
+		</p>
 		
-	Kies een bank: <select name="bank" id="bank"><option selected value="">Kies uw bank...</option>
-<option value="0031">ABN Amro</option>
-<option value="0721">ING</option>
-<option value="0021">Rabobank</option>
-<option value="0751">SNS Bank</option>
-<option value="0761">ASN Bank</option>
-<option value="0801">Knab</option>
-<option value="0771">RegioBank</option>
-<option value="0511">Triodos Bank</option>
-<option value="0161">Van Lanschot Bankiers</option></select>	
-	</p>
-	
-	<p>
-		<button type="submit" name="submit" class="">Afrekenen</button>
-	</p><?php } ?>
-	</form>
-	
-<?php endif; ?>	
-<?php } ?>	        
+		<p>
+			<button type="submit" name="submit" class="">Afrekenen</button>
+		</p>
+		</form>
+		
+	<?php endif; ?>	
+	<?php } ?>	     
+<?php endif; ?>   

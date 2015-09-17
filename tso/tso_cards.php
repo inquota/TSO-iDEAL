@@ -1,5 +1,6 @@
 <?php
 	global $wpdb;
+	$site_url = site_url();
 	$table_cards = $wpdb->prefix . 'tso_cards';
 		
 	$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
