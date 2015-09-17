@@ -385,6 +385,9 @@ $wpdb->query('CREATE TABLE IF NOT EXISTS `'.$wpdb->prefix.'tso_maillog` (
   $wpdb->query('ALTER TABLE `'.$wpdb->prefix.'tso_children`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;');
   
+  $wpdb->query('ALTER TABLE `'.$wpdb->prefix.'tso_schools`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;');
+  
   $wpdb->query('ALTER TABLE `'.$wpdb->prefix.'tso_submissions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;');
   
