@@ -1,6 +1,7 @@
 <?php
 
 require_once 'lib/swiftmailer-5.4.0/lib/swift_required.php';
+require_once 'lib/php-export-data/php-export-data.class.php';
 
 class Functions {
 	
@@ -35,13 +36,13 @@ class Functions {
 	 * 
 	 * @return boolean true|false
 	 */
-	public function SendMail($subject, $to, $_message)
+	public function SendMail($subject, $to, $_message, $attachment = null)
 	{
 		/*global $wpdb;
 		
 		$table_settings = $wpdb->prefix . 'wv_reservations_settings';
 		$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );*/
-		$this->SendEmailPHP($subject, $to, $_message);
+		$this->SendEmailSWIFT($subject, $to, $_message, $attachment);
 	}
 	
 	private function SendEmailPHP($subject, $to, $_message)
@@ -83,16 +84,16 @@ class Functions {
 		}
 	}
 	
-	private function SendEmailSWIFT($subject, $to, $_message)
+	private function SendEmailSWIFT($subject, $to, $_message, $attachment = null)
 	{
 		$blog_title = get_bloginfo();
 		
 		// Create the Transport
-		$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
+		/*$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
 		  ->setUsername('info@websitevorm.nl')
 		  ->setPassword('GXnECZWS5BYZ2yn_CwvrJA')
-		  ;
-				
+		  ;*/
+		$transport = Swift_MailTransport::newInstance();				
 		// Create the Mailer using your created Transport
 		$mailer = Swift_Mailer::newInstance($transport);
 		
@@ -111,6 +112,11 @@ class Functions {
 		}else{
 			$message->addTo($to);
 		}  
+		
+		if($attachment != null) {
+			// Optionally add any attachments
+  			$message->attach(Swift_Attachment::fromPath($attachment));
+		}
 		
 		// Send the message
 		$mailer->send($message);

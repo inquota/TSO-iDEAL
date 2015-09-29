@@ -3,6 +3,7 @@ define('WP_USE_THEMES', false);
 define('DONOTCACHEPAGE', true);
 
 require($_SERVER['DOCUMENT_ROOT'] . '/wp-load.php');
+require_once 'wp-content/plugins/tso/classes/phpword.php';
 
 global $wp, $wp_query, $wp_the_query, $wp_rewrite, $wp_did_header, $wpdb;
 
@@ -11,6 +12,7 @@ if(!isset($_GET['hash'])){
 }
 
 $functionsClass = new Functions();
+$PHPWordCustom = new PHPWordCustom();
 
 // tables
 $table_users = $wpdb->prefix . 'tso_users';
@@ -57,7 +59,7 @@ if($user != null){
 		}
 		
 		$message .='<h2>Gegevens ouders</h2>';
-		
+		$message .='E-mail: '.$userObject->email.'<br />';
 		if($userObject->first_name_mother !=null){
 			$message .='1ste Ouder / verzorger: '.$userObject->first_name_mother.' '.$userObject->last_name_mother.'<br />';
 			$message .='1ste Ouder / verzorger telefoon: '.$userObject->phone_mother.' <br />';
@@ -92,10 +94,16 @@ if($user != null){
 		$message .='Mijn kinderen blijven niet op de zelfde dagen over: '.$userObject->toelichting2.'<br />';
 		$message .='Bijzonderheden kind(eren): '.$userObject->toelichting3.'<br />';
 		
-		// Send mails
-		$functionsClass->SendMail('Aanmelding', $settings->tso_admin_mail, $message);
+		// Creating the new document...
+		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		
-		$functionsClass->SendMail('Aanmelding', $schooldObject->email, $message);	
+		$filename = 'Aanmelding-'.$userObject->email.'.docx';
+		$PHPWordCustom->createWordUserRegistration($userObject, $childObjects, $filename);
+		
+		// Send mails
+		$functionsClass->SendMail('Aanmelding '.$userObject->emai, $settings->tso_admin_mail, $message, $filename);
+		$functionsClass->SendMail('Aanmelding '.$userObject->emai, $schooldObject->email, $message);
+		unlink($filename);		
 		
 	header('Location: '.$settings->url_login.'?email='.$user->email);
 }else{

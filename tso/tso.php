@@ -25,24 +25,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-error_reporting(E_ALL);
-ini_set('display_errors',1);
 date_default_timezone_set("Europe/Amsterdam");
-
 require 'classes/password.php';
 require 'classes/functions.php';
 require 'classes/TargetPayIdeal.php';
-
  
 function tso_admin_actions() {
 	add_menu_page("TSO", "TSO", 'manage_options', "tso", "tso_submissions");
-	add_submenu_page( 'tso', 'Inzendingen', 'Inzendingen', 'manage_options', 'tso', 'tso_submissions');
-	add_submenu_page( 'tso', 'Gebruikers', 'Gebruikers', 'manage_options', 'users', 'tso_users');
+	add_submenu_page( 'tso', 'Betalingen', 'Betalingen', 'manage_options', 'tso', 'tso_submissions');
+	add_submenu_page( 'tso', 'Betalingen per week', 'Betalingen per week', 'manage_options', 'tso', 'tso_submissions_per_week');
+	add_submenu_page( 'tso', 'Aanmeldingen', 'Aanmeldingen', 'manage_options', 'users', 'tso_users');
 	add_submenu_page( 'tso', 'Scholen', 'Scholen', 'manage_options', 'schools', 'tso_schools');
 	add_submenu_page( 'tso', 'Kinderen', 'Kinderen', 'manage_options', 'children', 'tso_children');
 	add_submenu_page( 'tso', 'Strippenkaarten', 'Strippenkaarten', 'manage_options', 'cards', 'tso_cards');
 	add_submenu_page( 'tso', 'Statistieken', 'Statistieken', 'manage_options', 'statistics', 'tso_statistics');
-	//add_submenu_page( 'tso', 'Mail Log', 'Mail Log', 'manage_options', 'maillog', 'tso_maillog');
 	add_submenu_page( 'tso', 'Instellingen', 'Instellingen', 'manage_options', 'settings', 'tso_settings');
 }
 

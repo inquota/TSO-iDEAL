@@ -53,7 +53,7 @@ endif;
 
 
 <div class="wrap">
-	<?php    echo "<h2>" . __( 'Inzendingen', 'oscimp_trdom' ) . "</h2>"; ?>
+	<?php    echo "<h2>" . __( 'Betalingen', 'oscimp_trdom' ) . "</h2>"; ?>
 <form method="POST">
 	
 	<input type="submit" name="action_delete" value="Delete" class="button button-primary button-large" />

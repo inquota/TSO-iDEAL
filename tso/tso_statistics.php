@@ -29,12 +29,12 @@
 Totaal aantal verkopen: &euro; <?php echo number_format( $submissionResult->Price / 100, 2, ',', '.' ); ?>
 <fieldset>
 	<legend><strong>Verkopen per kind</strong></legend>
-	<table>
+	<table style="background: #FFF; width: 100%;">
 		<tr>
-			<td>Naam</td>
-			<td>Groep</td>
-			<td>School</td>
-			<td>Bedrag</td>
+			<td><strong>Naam</strong></td>
+			<td><strong>Groep</strong></td>
+			<td><strong>School</strong></td>
+			<td><strong>Bedrag</strong></td>
 		</tr>
 		<?php foreach($salesPerChild as $child) : ?>
 		<tr>

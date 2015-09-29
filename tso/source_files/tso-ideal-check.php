@@ -220,12 +220,13 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			$message_school .='2de Ouder / verzorger telefoon: '.$userObject->phone_father.' <br />';	
 		}
 
-
 		foreach($childObject as $k=>$child){
 			if(count($childObject) == 1)
 			{
+				$children = $child->first_name.' '.$child->last_name;
 				$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description.'<br />';	
 			}else{
+				$children[] = $child->first_name.' '.$child->last_name;
 				if(count($description) == 1) {
 					$message_school .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' ) -  '.$description[0]->description.'<br />';
 				}else{
@@ -234,10 +235,16 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 			}	
 		}
 		
+		if(is_array($children)){
+			$subject_children = implode(', ', $children);
+		}else{
+			$subject_children = $children;
+		}
+		
 		// Send mails
-		$functionsClass->SendMail('Strippenkaart afgenomen', $settings->tso_admin_mail, $message_admin);
-		$functionsClass->SendMail('Strippenkaart afgenomen', $userObject->email, $message_client);
-		$functionsClass->SendMail('Strippenkaart afgenomen', $schooldObject->email, $message_school);
+		$functionsClass->SendMail('Strippenkaart afgenomen: ' . $subject_children, $settings->tso_admin_mail, $message_admin);
+		$functionsClass->SendMail('Strippenkaart afgenomen: ' . $subject_children, $userObject->email, $message_client);
+		$functionsClass->SendMail('Strippenkaart afgenomen: ' . $subject_children, $schooldObject->email, $message_school);
 	
 }else{
 
