@@ -21,6 +21,7 @@
     						'Achternaam 2de Ouder / verzorger'=> 'last_name_father',
     						'2de Ouder / verzorger telefoon'=> 'phone_father',
     						'Adres'=> 'address',
+    						'Huisnummer'=> 'number',
     						'Postcode'=> 'postalcode',
     						'Plaats'=> 'city',
     						'Telefoon bij onbereikbaar'=> 'phone_unreachable',
@@ -32,8 +33,7 @@
 							'Naam Tandarts'=> 'name_dentist',
     						'Telefoon Tandarts'=> 'phone_dentist',
     						'Adres Tandarts'=> 'address_dentist',
-    						'Plaats Tandarts'=> 'city_dentist',
-    						'Dagen opvang'=> 'days_care',
+    						'Plaats Tandarts'=> 'city_dentist'
 						);
 	
 	$items = $wpdb->get_results( 
@@ -55,11 +55,12 @@ endif;
 
 	<?php
 	// Load data for view
-	$user = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$_GET['view']."", OBJECT);
+	$user = $wpdb->get_row( "SELECT * FROM {$table_users}  WHERE id = ".$_GET['view']."", OBJECT);
+	$school = $wpdb->get_row( "SELECT * FROM {$table_schools}  WHERE id = ".$user->school_id."", OBJECT);
 	$children = $wpdb->get_results( "SELECT Child.* FROM {$table_children} AS Child WHERE user_id = ".$user->id."");
 	?>
-		<?php    echo "<h2>" . __( 'View User', 'oscimp_trdom' ) . "</h2>"; ?>
-		<table style="padding: 5px;">
+		<?php    echo "<h2>" . __( 'Gegevens ouders', 'oscimp_trdom' ) . "</h2>"; ?>
+		<table style="padding: 5px; background: #FFF; width: 100%;">
 		<?php foreach ($fields as $key => $value) : ?>
 			<tr>
 				<td><?php echo $key; ?></td>
@@ -69,8 +70,16 @@ endif;
 	
 		</table>
 		<hr />
-				<?php    echo "<h2>" . __( 'Children', 'oscimp_trdom' ) . "</h2>"; ?>
-		<table style="padding: 5px;">
+				<?php    echo "<h2>" . __( 'Gegevens kinderen', 'oscimp_trdom' ) . "</h2>"; ?>
+		<table style="padding: 5px; background: #FFF; width: 100%;">
+			<tr>
+				<td>Basisschool</td>
+				<td><?php echo $school->name; ?></td>
+			</tr>
+			<tr>
+				<td>Dagen opvang</td>
+				<td><?php echo $user->days_care; ?></td>
+			</tr>
 			<tr>
 				<td>Naam</td>
 				<td>Groep</td>
@@ -81,17 +90,28 @@ endif;
 				<td><?php echo $value->groep; ?></td>
 			</tr>
 		<?php endforeach; ?>
-	
+			<tr>
+				<td>Mijn kind(eren) blijft/blijven niet op vaste dagen over.</td>
+				<td><?php echo $user->toelichting1; ?></td>
+			</tr>
+			<tr>
+				<td>Mijn kinderen blijven niet op de zelfde dagen over.</td>
+				<td><?php echo $user->toelichting2; ?></td>
+			</tr>
+			<tr>
+				<td>Bijzonderheden kind(eren).</td>
+				<td><?php echo $user->toelichting3; ?></td>
+			</tr>
 		</table>
 		
 	<?php endif; ?>
 	
 	
 	
-	<?php    echo "<h2>" . __( 'Gebruikers', 'oscimp_trdom' ) . "</h2>"; ?>
+	<?php    echo "<h2>" . __( 'Aanmeldingen', 'oscimp_trdom' ) . "</h2>"; ?>
 <form method="POST">
 	
-	<input type="submit" name="action_delete" value="Verwijderen" class="button button-primary button-large" />
+	<input type="submit" name="action_delete" value="Delete" class="button button-primary button-large" />
 	<table class="widefat fixed" cellspacing="0">
     <thead>
     <tr>
@@ -106,8 +126,7 @@ endif;
 			<th class="manage-column column-columnname" scope="col">Postcode</th>
 			<th class="manage-column column-columnname" scope="col">Stad</th>
 			<th class="manage-column column-columnname" scope="col">Aangemaakt op</th>
-			<th class="manage-column column-columnname" scope="col">Acties</th>
-    </tr>
+			    </tr>
     </thead>
 
     <tfoot>
@@ -123,7 +142,7 @@ endif;
 			<th class="manage-column column-columnname" scope="col">Postcode</th>
 			<th class="manage-column column-columnname" scope="col">Stad</th>
 			<th class="manage-column column-columnname" scope="col">Aangemaakt op</th>
-			<th class="manage-column column-columnname" scope="col">Acties</th>
+
 
     </tr>
     </tfoot>
@@ -132,16 +151,15 @@ endif;
     	<?php foreach($items as $item) : ?>
         <tr class="alternate">
             <th class="check-column" scope="row"><input type="checkbox" value="<?php echo $item->user_id; ?>" name="id[]" /></th>
-            <td class="column-columnname"><?php echo $item->user_id; ?></td>
+            <td class="column-columnname"><a href="?page=users&view=<?php echo $item->user_id; ?>"><?php echo $item->user_id; ?></a></td>
             <td class="column-columnname"><?php echo $item->name; ?></td>
-			<td class="column-columnname"><?php echo $item->first_name_mother; ?> <?php echo $item->last_name_mother; ?></td>
-			<td class="column-columnname"><?php echo $item->first_name_father; ?> <?php echo $item->last_name_father; ?></td>
+			<td class="column-columnname"><a href="?page=users&view=<?php echo $item->user_id; ?>"><?php echo $item->first_name_mother; ?> <?php echo $item->last_name_mother; ?></a></td>
+			<td class="column-columnname"><a href="?page=users&view=<?php echo $item->user_id; ?>"><?php echo $item->first_name_father; ?> <?php echo $item->last_name_father; ?></a></td>
 			<td class="column-columnname"><?php echo $item->user_email; ?></td>
-			<td class="column-columnname"><?php echo $item->address; ?></td>
+			<td class="column-columnname"><?php echo $item->address; ?> <?php echo $item->number; ?></td>
 			<td class="column-columnname"><?php echo $item->postalcode; ?></td>
 			<td class="column-columnname"><?php echo $item->city; ?></td>
-			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->userCreatedAt)); ?></td>
-			<td class="column-columnname"><a href="?page=users&view=<?php echo $item->user_id; ?>">Bekijk</a></td>
+			<td class="column-columnname"><?php echo date('d-m-Y H:i', strtotime($item->userCreatedAt)); ?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
