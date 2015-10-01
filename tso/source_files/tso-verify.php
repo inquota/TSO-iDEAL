@@ -38,13 +38,13 @@ if($user != null){
 	$childObjects = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE user_id =".$userObject->id );
 	
 	// Save
-	/*$wpdb->update( 
+	$wpdb->update( 
 	$table_users, 
 			array( 
 				'verified' => date('c'),	// string
 			), 
 			array( 'id' => $user->id )
-		);*/
+		);
 		
 		
 		/**
