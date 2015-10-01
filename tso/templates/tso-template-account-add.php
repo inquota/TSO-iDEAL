@@ -236,7 +236,8 @@ if(isset($_POST['submit'])){
 		$message .='Wachtwoord: '.$password_readable . '<br />';
 		$message .='Klik hier om uw account te bevestigen: <a href="http://'.$_SERVER['HTTP_HOST'].'/tso-verify.php?hash='.$hash.'">activeren</a><br />';
 		
-		$functionsClass->SendMail('TSO | Account', $_POST['email'], $message);
+		$blog_title = get_bloginfo(); 
+		$functionsClass->SendMail($blog_title,'Account', $_POST['email'], $message);
 			
 		echo'<script>window.location="'.$settings->url_profile_created.'"; </script>';
 	}

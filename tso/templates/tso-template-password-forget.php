@@ -58,7 +58,8 @@ if(isset($_POST['submit'])){
 		$message .='U heeft een nieuw wachtwoord opgevraagd.<br />';
 		$message .='Wachtwoord: '.$password_readable . '<br />';
 		
-		$functionsClass->SendMail('Account nieuw wachtwoord', $_POST['email'], $message);
+		$blog_title = get_bloginfo(); 
+		$functionsClass->SendMail($blog_title, 'Account nieuw wachtwoord', $_POST['email'], $message);
 			
 		echo'<script>window.location="'.$settings->url_login.'"?email="'.$_POST['email'].'"; </script>';
 	}

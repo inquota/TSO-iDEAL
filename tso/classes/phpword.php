@@ -12,15 +12,17 @@ class PHPWordCustom {
 		$this->_phpWord = new \PhpOffice\PhpWord\PhpWord();
 	}
 	
-	public function createWordUserRegistration($userObject, $childObjects, $filename)
+	public function createWordUserRegistration($userObject, $childObjects, $schooldObject, $filename, $imageHeader)
 	{
 		/* Note: any element you append to a document must reside inside of a Section. */
 		$section = $this->_phpWord->addSection();
+		$section->addImage($imageHeader);
 		$header = array('size' => 16, 'bold' => true);
 		// 1. Basic table
 		$section->addText(htmlspecialchars('Gegevens ouders', ENT_COMPAT, 'UTF-8'), $header);
-		$table = $section->addTable();
+		$section->addTextRun();
 		
+		$table = $section->addTable();
 		$table->addRow();
 		$table->addCell(3000)->addText(htmlspecialchars("E-mail", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->email, ENT_COMPAT, 'UTF-8'));
@@ -43,7 +45,12 @@ class PHPWordCustom {
 		$table->addCell(3000)->addText(htmlspecialchars("Relatie tot kind(eren) ", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->relation_child, ENT_COMPAT, 'UTF-8'));
 		
+		$section->addTextRun();
+		$section->addTextRun();
+		
 		$section->addText(htmlspecialchars('Gegevens dokter', ENT_COMPAT, 'UTF-8'), $header);
+		$section->addTextRun();
+		
 		$table = $section->addTable();
 		$table->addRow();
 		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'));
@@ -58,7 +65,12 @@ class PHPWordCustom {
 		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_doc, ENT_COMPAT, 'UTF-8'));
 		
+		$section->addTextRun();
+		$section->addTextRun();
+		
 		$section->addText(htmlspecialchars('Gegevens tandarts', ENT_COMPAT, 'UTF-8'), $header);
+		$section->addTextRun();
+		
 		$table = $section->addTable();
 		$table->addRow();
 		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'));
@@ -73,7 +85,12 @@ class PHPWordCustom {
 		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_dentist, ENT_COMPAT, 'UTF-8'));
 		
+		$section->addTextRun();
+		$section->addTextRun();
+		
 		$section->addText(htmlspecialchars('Gegevens kinderen', ENT_COMPAT, 'UTF-8'), $header);
+		$section->addTextRun();
+		
 		$table = $section->addTable();
 		$table->addRow();
 		$table->addCell(3000)->addText(htmlspecialchars("Basisschool", ENT_COMPAT, 'UTF-8'));
@@ -81,6 +98,16 @@ class PHPWordCustom {
 		$table->addRow();
 		$table->addCell(3000)->addText(htmlspecialchars("Dagen opvang", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->days_care, ENT_COMPAT, 'UTF-8'));
+		
+		foreach($childObjects as $child){
+			$table->addRow();
+			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep.", ENT_COMPAT, 'UTF-8'));
+			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'));
+		}
+		
+		$section->addTextRun();
+		$section->addTextRun();
+		
 		$table->addRow();
 		$table->addCell(5000)->addText(htmlspecialchars("Mijn kind(eren) blijft/blijven niet op vaste dagen over.", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting1, ENT_COMPAT, 'UTF-8'));
@@ -91,12 +118,141 @@ class PHPWordCustom {
 		$table->addCell(5000)->addText(htmlspecialchars("Bijzonderheden kind(eren).", ENT_COMPAT, 'UTF-8'));
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting3, ENT_COMPAT, 'UTF-8'));
 		
-		foreach($childObjects as $child){
-			$table->addRow();
-			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep.", ENT_COMPAT, 'UTF-8'));
-			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'));
-		}
 		
+		
+		
+		
+		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($this->_phpWord, 'Word2007');
+		$objWriter->save($filename);
+	}
+	/**
+	 * 
+	 */
+	public function createWordPaymentsLastWeek($wpdb, $year, $week, $filename, $imageHeader)
+	{
+		$table_submissions = $wpdb->prefix . 'tso_submissions';
+		$table_schools = $wpdb->prefix . 'tso_schools';
+		$table_users = $wpdb->prefix . 'tso_users';
+		$table_children = $wpdb->prefix . 'tso_children';
+			
+			$submissionsCurrentWeek = $wpdb->get_results( 
+				"
+				SELECT 
+					Submission.id,
+					Submission.created_at,
+					Submission.groep,
+					Submission.card,
+					Submission.price,
+					Submission.payment_status,
+					Submission.bank,
+					User.first_name_father,
+					User.last_name_father,
+					User.first_name_mother,
+					User.last_name_mother,
+					School.name AS name_school,
+					Child.first_name AS first_name,
+					Child.last_name AS last_name
+				FROM 
+					{$table_submissions} as Submission 
+				LEFT JOIN {$table_users} AS User ON (Submission.user_id=User.id) 
+				LEFT JOIN {$table_schools} AS School ON (Submission.school_id=School.id)
+				LEFT JOIN {$table_children} AS Child ON (Submission.child_id=Child.id)
+				WHERE year(Submission.created_at)= ".$year." AND week(Submission.created_at, 3)= ".$week."
+				ORDER BY Submission.created_at ASC, School.name ASC
+				"
+				);
+				
+			$cards = $wpdb->get_results( 
+				"
+				SELECT 
+					COUNT(`card`) AS CountCard,
+					Submission.card
+				FROM 
+					{$table_submissions} as Submission 
+				WHERE year(Submission.created_at)= ".$year." AND week(Submission.created_at, 3)= ".$week."
+				GROUP BY Submission.card
+				"
+				);
+		
+		$section = $this->_phpWord->createSection(array('orientation'=>'landscape'));
+		$section->addImage($imageHeader);
+		$header = array('size' => 15, 'bold' => true);
+		// 1. Basic table
+		$section->addText(htmlspecialchars('Betalingen van week ' . $week . ' - ' . date('Y'), ENT_COMPAT, 'UTF-8'), $header);
+		$section->addTextRun();
+		$table = $section->addTable();
+		
+		$table->addRow();
+		$table->addCell(2200)->addText(htmlspecialchars("School", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(4000)->addText(htmlspecialchars("Ouders / verzorgers", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(1000)->addText(htmlspecialchars("Groep", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(2500)->addText(htmlspecialchars("Kind", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(2200)->addText(htmlspecialchars("Strippenkaart", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(1400)->addText(htmlspecialchars("Betaald", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(1400)->addText(htmlspecialchars("Datum", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		
+		$totalPrice = array();
+		foreach($submissionsCurrentWeek as $resultCurrentWeek){
+			$table->addRow();
+			$table->addCell(2200)->addText(htmlspecialchars($resultCurrentWeek->name_school, ENT_COMPAT, 'UTF-8'));
+			$table->addCell(4000)->addText(htmlspecialchars($resultCurrentWeek->first_name_mother . ' ' . $resultCurrentWeek->last_name_mother . ' ' .  $resultCurrentWeek->first_name_father . ' ' . $resultCurrentWeek->last_name_father, ENT_COMPAT, 'UTF-8'));
+			$table->addCell(1000)->addText(htmlspecialchars($resultCurrentWeek->groep, ENT_COMPAT, 'UTF-8'));
+			$table->addCell(2500)->addText(htmlspecialchars($resultCurrentWeek->first_name . ' ' . $resultCurrentWeek->last_name, ENT_COMPAT, 'UTF-8'));
+			$table->addCell(2200)->addText(htmlspecialchars(html_entity_decode($resultCurrentWeek->card), ENT_COMPAT, 'UTF-8'));
+			if($resultCurrentWeek->payment_status==1) {
+				$table->addCell(1400)->addText('Ja', ENT_COMPAT, 'UTF-8');	
+			}else{
+				$table->addCell(1400)->addText('Nee', ENT_COMPAT, 'UTF-8');	
+			}
+			$table->addCell(1400)->addText(htmlspecialchars(date('d-m H:i', strtotime($resultCurrentWeek->created_at . "+2 hours")), ENT_COMPAT, 'UTF-8'));
+			$totalPrice[] = $resultCurrentWeek->price;
+		}
+		$section->addTextRun();
+		$section->addText(htmlspecialchars('Totaal: € ' . (array_sum($totalPrice) / 100), ENT_COMPAT, 'UTF-8'),   array(
+	      'size' => 14,
+	      'bold' => true,
+	    ));
+		
+		$section->addTextRun();
+		$section->addTextRun();
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(2500)->addText(htmlspecialchars("Strippenkaart", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		$table->addCell(2500)->addText(htmlspecialchars("Aantal", ENT_COMPAT, 'UTF-8'),  array(
+	      'size' => 13,
+	      'bold' => true,
+	    ));
+		foreach($cards as $card){
+			$table->addRow();
+			$table->addCell(2500)->addText(htmlspecialchars(html_entity_decode($card->card), ENT_COMPAT, 'UTF-8'));
+			$table->addCell(2500)->addText(htmlspecialchars($card->CountCard, ENT_COMPAT, 'UTF-8'));
+		}
+				
 		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($this->_phpWord, 'Word2007');
 		$objWriter->save($filename);
 	}

@@ -1,10 +1,12 @@
 <?php
-
 require_once 'lib/swiftmailer-5.4.0/lib/swift_required.php';
-require_once 'lib/php-export-data/php-export-data.class.php';
 
 class Functions {
-	
+	/**
+	 * Generate a random password
+	 * 
+	 * @return string
+	 */
 	public function randomPassword() {
 	    $alphabet = "abcdefghijkmnopqrstuwxyzABCDEFGHIJKLMNPQRSTUWXYZ0123456789";
 	    $pass = array(); //remember to declare $pass as an array
@@ -15,7 +17,11 @@ class Functions {
 	    }
 	    return implode($pass); //turn the array into a string
 	}
-	
+	/**
+	 * Generate a random hash
+	 * 
+	 * @return string
+	 */
 	public function RandomHash() {
 	    $alphabet = "abcdefghijkmnopqrstuwxyz";
 	    $pass = array(); //remember to declare $pass as an array
@@ -26,7 +32,6 @@ class Functions {
 	    }
 	    return implode($pass); //turn the array into a string
 	}
-	
 	/**
 	 * Send an E-mail with SwiftMailer
 	 *
@@ -36,29 +41,56 @@ class Functions {
 	 * 
 	 * @return boolean true|false
 	 */
-	public function SendMail($subject, $to, $_message, $attachment = null)
+	public function SendMail($blog_title, $subject, $to, $_message, $attachment = null)
 	{
-		/*global $wpdb;
-		
-		$table_settings = $wpdb->prefix . 'wv_reservations_settings';
-		$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );*/
-		$this->SendEmailSWIFT($subject, $to, $_message, $attachment);
-	}
+		$this->SendEmailPHP($blog_title, $subject, $to, $_message, $attachment);
+	} 
 	
-	private function SendEmailPHP($subject, $to, $_message)
+	private function SendEmailPHP($blog_title, $subject, $to, $_message, $attachment = null)
 	{
 		if($to==null || $to == false){
 			return false;
 		}
-		
-		$blog_title = get_bloginfo(); 
-		
-		// To send HTML mail, the Content-type header must be set
-		$headers  = 'MIME-Version: 1.0' . "\r\n";
-		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-		$headers .= 'From: '.$blog_title.' <noreply@'.$_SERVER['HTTP_HOST'].'>' . "\r\n";
-		
+				
 		$emails=explode(',',$to);
+		
+		if($attachment != null) {
+			$email_from = 'noreply@'.$_SERVER['HTTP_HOST'];
+			$email_txt = $_message;
+			$path_parts = pathinfo($attachment);
+			$fileatt = $attachment; // Path to the file (example)
+			$fileatt_type = "application/zip"; // File Type
+			$fileatt_name = $path_parts['basename']; // Filename that will be used for the file as the attachment
+			$file = fopen($fileatt,'rb');
+			$data = fread($file,filesize($fileatt));
+			fclose($file);
+			
+			$semi_rand = md5(time());
+			$mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
+			$headers="From: ".$blog_title." <{$email_from}>"; // Who the email is from (example)
+			$headers .= "\nMIME-Version: 1.0\n" .
+			"Content-Type: multipart/mixed;\n" .
+			" boundary=\"{$mime_boundary}\"";
+			$email_message = "This is a multi-part message in MIME format.\n\n" .
+			"--{$mime_boundary}\n" .
+			"Content-Type:text/html; charset=\"iso-8859-1\"\n" .
+			"Content-Transfer-Encoding: 7bit\n\n" . $email_txt;
+			$email_message .= "\n\n";
+			$data = chunk_split(base64_encode($data));
+			$email_message .= "--{$mime_boundary}\n" .
+			"Content-Type: {$fileatt_type};\n" .
+			" name=\"{$fileatt_name}\"\n" .
+			"Content-Transfer-Encoding: base64\n\n" .
+			$data . "\n\n" .
+			"--{$mime_boundary}--\n";
+			
+			$_message = $email_message; 
+		}else{
+			// To send HTML mail, the Content-type header must be set
+			$headers  = 'MIME-Version: 1.0' . "\r\n";
+			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+			$headers .= 'From: '.$blog_title.' <noreply@'.$_SERVER['HTTP_HOST'].'>' . "\r\n";
+		}
 		
 		if(count($emails) > 1 && is_array($emails)){
 			$headers .= 'BCC: '. $to . "\r\n";
@@ -84,10 +116,8 @@ class Functions {
 		}
 	}
 	
-	private function SendEmailSWIFT($subject, $to, $_message, $attachment = null)
+	private function SendEmailSWIFT($blog_title, $subject, $to, $_message, $attachment = null)
 	{
-		$blog_title = get_bloginfo();
-		
 		// Create the Transport
 		/*$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
 		  ->setUsername('info@websitevorm.nl')

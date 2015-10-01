@@ -172,7 +172,8 @@ if(isset($_POST['submit'])){
 		$message .='Dagen opvang: '.$user->days_care.'<br /><br />';
 		
 		// Send mails
-		$functionsClass->SendMail('Account gewijzigd van aanmelding', $settings->tso_admin_mail, $message);
+		$blog_title = get_bloginfo(); 
+		$functionsClass->SendMail($blog_title, 'Account gewijzigd van aanmelding', $settings->tso_admin_mail, $message);
 		echo'<script>window.location="'.$settings->url_profile_edit_done.'"; </script>';
 	}
 

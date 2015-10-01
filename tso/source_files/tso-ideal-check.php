@@ -242,9 +242,10 @@ if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
 		}
 		
 		// Send mails
-		$functionsClass->SendMail('Strippenkaart afgenomen: ' . $subject_children, $settings->tso_admin_mail, $message_admin);
-		$functionsClass->SendMail('Strippenkaart afgenomen: ' . $subject_children, $userObject->email, $message_client);
-		$functionsClass->SendMail('Strippenkaart afgenomen: ' . $subject_children, $schooldObject->email, $message_school);
+		$blog_title = get_bloginfo(); 
+		$functionsClass->SendMail($blog_title, 'Strippenkaart afgenomen: ' . $subject_children, $settings->tso_admin_mail, $message_admin);
+		$functionsClass->SendMail($blog_title, 'Strippenkaart afgenomen: ' . $subject_children, $userObject->email, $message_client);
+		$functionsClass->SendMail($blog_title, 'Strippenkaart afgenomen: ' . $subject_children, $schooldObject->email, $message_school);
 	
 }else{
 
