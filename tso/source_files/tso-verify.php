@@ -38,13 +38,13 @@ if($user != null){
 	$childObjects = $wpdb->get_results( "SELECT * FROM {$table_children} WHERE user_id =".$userObject->id );
 	
 	// Save
-	$wpdb->update( 
+	/*$wpdb->update( 
 	$table_users, 
 			array( 
 				'verified' => date('c'),	// string
 			), 
 			array( 'id' => $user->id )
-		);
+		);*/
 		
 		
 		/**
@@ -55,6 +55,12 @@ if($user != null){
 		$message .='Dagen voor opvang: '.$userObject->days_care.'<br />';
 		
 		foreach($childObjects as $child){
+			if(count($childObjects) == 1)
+			{
+				$children = $child->first_name.' '.$child->last_name;
+			}else{
+				$children[] = $child->first_name.' '.$child->last_name;
+			}
 			$message .='Kind en groep: '.$child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')<br />';	
 		}
 		
@@ -94,15 +100,22 @@ if($user != null){
 		$message .='Mijn kinderen blijven niet op de zelfde dagen over: '.$userObject->toelichting2.'<br />';
 		$message .='Bijzonderheden kind(eren): '.$userObject->toelichting3.'<br />';
 		
+		if(is_array($children)){
+			$subject_children = implode(', ', $children);
+		}else{
+			$subject_children = $children;
+		}
+		
 		// Creating the new document...
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 		
-		$filename = 'Aanmelding-'.$userObject->email.'.docx';
-		$PHPWordCustom->createWordUserRegistration($userObject, $childObjects, $filename);
+		$filename = 'Aanmelding-'.$subject_children.'.docx';
+		$PHPWordCustom->createWordUserRegistration($userObject, $childObjects, $schooldObject, $filename, 'https://delunchclub-opo.nl/wp-content/uploads/2015/05/cropped-header_27-51.jpg');
 		
 		// Send mails
-		$functionsClass->SendMail('Aanmelding '.$userObject->emai, $settings->tso_admin_mail, $message, $filename);
-		$functionsClass->SendMail('Aanmelding '.$userObject->emai, $schooldObject->email, $message);
+		$blog_title = get_bloginfo(); 
+		$functionsClass->SendMail($blog_title, 'Aanmelding '.$subject_children, $settings->tso_admin_mail, $message, $filename);
+		$functionsClass->SendMail($blog_title, 'Aanmelding '.$subject_children, $schooldObject->email, $message);
 		unlink($filename);		
 		
 	header('Location: '.$settings->url_login.'?email='.$user->email);
