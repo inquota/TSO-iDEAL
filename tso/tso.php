@@ -47,7 +47,6 @@ add_action('admin_menu', 'tso_admin_actions');
 function tso_schools(){
 	include('tso_schools.php');  
 }
-
 function tso_cards(){
 	include('tso_cards.php');  
 }
@@ -55,7 +54,6 @@ function tso_cards(){
 function tso_users(){
 	include('tso_users.php');  
 }
-
 function tso_statistics(){
 	include('tso_statistics.php');  
 }
@@ -63,15 +61,13 @@ function tso_statistics(){
 function tso_submissions() {	  
     include('tso_submissions.php');  
 } 
+function tso_payments_per_week() {
+	include('tso_submissions_per_week.php');  
+}
 
 function tso_children() {	  
     include('tso_children.php');  
 }
-
-function tso_maillog(){
-	include('tso_maillog.php');  
-}
-
 function tso_settings() {	  
     include('tso_settings.php');  
 }  
