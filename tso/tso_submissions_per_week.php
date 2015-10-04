@@ -11,6 +11,9 @@ $table_children = $wpdb->prefix . 'tso_children';
 <div class="wrap">
 	
 	<h1>Huidige week: Week <?php echo date('W'); ?></h1>
+	<p>
+		<a href="#" class="exportToPDFCurrentWeek" id="exportCurrentWeek<?php echo date('W'); ?>">Export</a>
+	</p>
 	<?php
 		$submissionsCurrentWeek = $wpdb->get_results( 
 		"
@@ -91,14 +94,14 @@ FROM
 	<p>
 		<table>
 			<tr>
-				<td><strong>Strippenkaart</strong></td>
 				<td><strong>Aantal</strong></td>
+				<td><strong>Strippenkaart</strong></td>
 			</tr>
 			<?php
 			foreach($cards as $card){ ?>
 			<tr>
-				<td><?php echo html_entity_decode($card->card); ?></td>
 				<td><?php echo $card->CountCard; ?></td>
+				<td><?php echo html_entity_decode($card->card); ?></td>
 			</tr>
 			<?php 
 			}
@@ -194,14 +197,14 @@ FROM
 	<p>
 		<table>
 			<tr>
-				<td><strong>Strippenkaart</strong></td>
 				<td><strong>Aantal</strong></td>
+				<td><strong>Strippenkaart</strong></td>
 			</tr>
 			<?php
 			foreach($cardsWeeks as $cardWeek){ ?>
 			<tr>
-				<td><?php echo html_entity_decode($cardWeek->card); ?></td>
 				<td><?php echo $cardWeek->CountCard; ?></td>
+				<td><?php echo html_entity_decode($cardWeek->card); ?></td>
 			</tr>
 			<?php 
 			}
@@ -242,6 +245,19 @@ jQuery('.exportToPDF').click(function (event) {
 	var d = new Date();
 	var year = d.getFullYear(); 
     doc.fromHTML(jQuery('#week'+weeknumber).html(), 15, 15, {
+        'width': 170,
+            'elementHandlers': specialElementHandlers
+    });
+    doc.save('Betalingen-week'+weeknumber+'-'+year+'.pdf');
+});
+
+jQuery('.exportToPDFCurrentWeek').click(function (event) {
+	event.preventDefault();		
+	var id=event.target.id;
+	var weeknumber = id.replace("exportCurrentWeek", "");
+	var d = new Date();
+	var year = d.getFullYear(); 
+    doc.fromHTML(jQuery('#exportToPDFCurrentWeek').html(), 15, 15, {
         'width': 170,
             'elementHandlers': specialElementHandlers
     });

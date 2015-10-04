@@ -278,7 +278,8 @@ CREATE TABLE IF NOT EXISTS `'.$wpdb->prefix.'tso_children` (
 				  `url_profile_created` varchar(90) NOT NULL,
 				  `url_password_change` varchar(255) NOT NULL,
 				  `url_profile_edit_done` varchar(90) NOT NULL,
-				  `url_password_forget` varchar(255) NOT NULL
+				  `url_password_forget` varchar(90) NOT NULL,
+				  `url_terms` varchar(90) NOT NULL
 				) ENGINE=InnoDB DEFAULT CHARSET=latin1;'
 	);
 	
@@ -286,8 +287,8 @@ CREATE TABLE IF NOT EXISTS `'.$wpdb->prefix.'tso_children` (
 		$settings = $wpdb->get_row( "SELECT * FROM ".$wpdb->prefix."wv_reservations_settings WHERE id=1", OBJECT );
 		
 		if($settings==null){
-			$wpdb->query("INSERT INTO `".$wpdb->prefix."tso_settings` (`id`, `targetpay_rtlo`, `targetpay_testmode`, `tso_admin_mail`, `url_login`, `url_register`, `url_card_overview`, `url_card_add`, `url_payment_done`, `url_profile_edit`, `url_profile_created`, `url_password_change`, `url_profile_edit_done`, `url_password_forget`) VALUES
-			(1, 000000, 1, 'email@email.com', '/inloggen/', '/inschrijven/', '/strippenkaart/', '/strippenkaart-toevoegen/', '/payment-done/', '/profiel-bewerken/', '/bedankt-aanmelden/', '/wachtwoord-instellen/', '/profiel-aangepast/', '/wachtwoord-vergeten/');");
+			$wpdb->query("INSERT INTO `".$wpdb->prefix."tso_settings` (`id`, `targetpay_rtlo`, `targetpay_testmode`, `tso_admin_mail`, `url_login`, `url_register`, `url_card_overview`, `url_card_add`, `url_payment_done`, `url_profile_edit`, `url_profile_created`, `url_password_change`, `url_profile_edit_done`, `url_password_forget`, `url_terms`) VALUES
+			(1, 000000, 1, 'email@email.com', '/inloggen/', '/inschrijven/', '/strippenkaart/', '/strippenkaart-toevoegen/', '/payment-done/', '/profiel-bewerken/', '/bedankt-aanmelden/', '/wachtwoord-instellen/', '/profiel-aangepast/', '/wachtwoord-vergeten/', '/algemene-voorwaarden/');");
 		}	
 		
 	$wpdb->query('
@@ -401,14 +402,15 @@ $wpdb->query('CREATE TABLE IF NOT EXISTS `'.$wpdb->prefix.'tso_maillog` (
 	$source_files=array(
 		0 => array('source' => 'tso-ideal-check.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
 		1 => array('source' => 'tso-verify.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
-		2 => array('source' => 'tso-template-account-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		3 => array('source' => 'tso-template-account-edit.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		4 => array('source' => 'tso-template-card.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		5 => array('source' => 'tso-template-card-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		6 => array('source' => 'tso-template-login.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		7 => array('source' => 'tso-template-password-change.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		8 => array('source' => 'tso-template-password-forget.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		9 => array('source' => 'tso-template-payment-done.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		2 => array('source' => 'tso-export-children.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
+		3 => array('source' => 'tso-template-account-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		4 => array('source' => 'tso-template-account-edit.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		5 => array('source' => 'tso-template-card.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		6 => array('source' => 'tso-template-card-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		7 => array('source' => 'tso-template-login.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		8 => array('source' => 'tso-template-password-change.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		9 => array('source' => 'tso-template-password-forget.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		10 => array('source' => 'tso-template-payment-done.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
 	);
 	
 	foreach($source_files as $k=>$v){

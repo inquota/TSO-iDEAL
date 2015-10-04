@@ -1,44 +1,50 @@
 <?php
-	global $wpdb;
-	$site_url = site_url();
-	$table_children = $wpdb->prefix . 'tso_children';
-	$table_schools = $wpdb->prefix . 'tso_schools';
-	$table_users = $wpdb->prefix . 'tso_users';
-		
-	$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
+global $wpdb;
+$table_children = $wpdb->prefix . 'tso_children';
+$table_schools = $wpdb->prefix . 'tso_schools';
+$table_users = $wpdb->prefix . 'tso_users';
 
-	$limit = 20; // number of rows in page
-	$offset = ( $pagenum - 1 ) * $limit;
-	$total = $wpdb->get_var( "SELECT COUNT(`id`) FROM {$table_children}" );
-	$num_of_pages = ceil( $total / $limit );
+$table_settings = $wpdb->prefix . 'tso_settings';
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
 	
-	$items = $wpdb->get_results( 
-		"SELECT 
-				Child.id, 
-				Child.first_name AS first_name,
-				Child.last_name AS last_name,  
-				School.name AS name_school, 
-				Child.groep, 
-				Child.created_at 
-		FROM 
-			{$table_children} AS Child
-		LEFT JOIN {$table_users} AS User ON (Child.user_id=User.id) 
-		LEFT JOIN {$table_schools} AS School ON (School.id=User.school_id) 
-		ORDER BY name_school ASC, first_name ASC"
-	);
+$pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
+
+$limit = 20; // number of rows in page
+$offset = ( $pagenum - 1 ) * $limit;
+$total = $wpdb->get_var( "SELECT COUNT(`id`) FROM {$table_children}" );
+$num_of_pages = ceil( $total / $limit );
+
+$items = $wpdb->get_results( 
+	"SELECT 
+			Child.id, 
+			Child.first_name AS first_name,
+			Child.last_name AS last_name,  
+			School.name AS name_school, 
+			Child.groep, 
+			Child.created_at 
+	FROM 
+		{$table_children} AS Child
+	LEFT JOIN {$table_users} AS User ON (Child.user_id=User.id) 
+	LEFT JOIN {$table_schools} AS School ON (School.id=User.school_id) 
+	ORDER BY name_school ASC, first_name ASC"
+);
 	
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_children} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo '<meta http-equiv="refresh" content="0; URL='.$site_url.'/wp-admin/admin.php?page=children">';
+	echo '<meta http-equiv="refresh" content="0; URL=/wp-admin/admin.php?page=children">';
 endif;
 ?>
 
 
 <div class="wrap">
-	<?php    echo "<h2>" . __( 'Kinderen', 'oscimp_trdom' ) . "</h2>"; ?>
+	<?php    echo "<h2>" . __( 'Children', 'oscimp_trdom' ) . "</h2>"; ?>
+	<p>
+		<a href="#" class="excel_export">Excel export</a>
+	</p>
 <form method="POST">
 	
-	<input type="submit" name="action_delete" value="Verwijderen" class="button button-primary button-large" />
+	<input type="submit" name="action_delete" value="Delete" class="button button-primary button-large" />
 	<table class="widefat fixed" cellspacing="0">
     <thead>
     <tr>
@@ -46,9 +52,9 @@ endif;
             <th id="cb" class="manage-column column-cb check-column" scope="col"></th> 
 			<th class="manage-column column-columnname" scope="col">Id</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
-			<th class="manage-column column-columnname" scope="col">Groep</th>
-			<th class="manage-column column-columnname" scope="col">Naam</th>
-			<th class="manage-column column-columnname" scope="col">Aangemaakt op</th>
+			<th class="manage-column column-columnname" scope="col">Group</th>
+			<th class="manage-column column-columnname" scope="col">Name</th>
+			<th class="manage-column column-columnname" scope="col">Created at</th>
     </tr>
     </thead>
 
@@ -58,9 +64,9 @@ endif;
             <th class="manage-column column-cb check-column" scope="col"></th>
 			<th class="manage-column column-columnname" scope="col">Id</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
-			<th class="manage-column column-columnname" scope="col">Groep</th>
-			<th class="manage-column column-columnname" scope="col">Naam</th>
-			<th class="manage-column column-columnname" scope="col">Aangemaakt op</th>
+			<th class="manage-column column-columnname" scope="col">Group</th>
+			<th class="manage-column column-columnname" scope="col">Name</th>
+			<th class="manage-column column-columnname" scope="col">Created at</th>
 
     </tr>
     </tfoot>
@@ -98,3 +104,11 @@ if ( $page_links ) {
 	
 	
 </div>
+<script>
+	jQuery('.excel_export').click(function (event) {
+	event.preventDefault();		
+	jQuery.get( "/tso-export-children.php", function( data ) {
+  alert( "Er is een e-mail gestuurd naar <?php echo $settings->tso_admin_mail ?> " );
+});
+});
+</script>

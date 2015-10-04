@@ -1,7 +1,6 @@
 <?php
 
 global $wpdb;
-$site_url = site_url();
 $table_settings = $wpdb->prefix . 'tso_settings';
 
 // get settings
@@ -45,15 +44,16 @@ if(isset($_POST['submit'])) :
 					'url_password_change' => $_POST['url_password_change'],
 					'url_profile_edit_done' => $_POST['url_profile_edit_done'],
 					'url_password_forget' => $_POST['url_password_forget'],
+					'url_terms' => $_POST['url_terms'],
 				), 
 				array( 'id' => 1 )
 			);
-	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=settings"; </script>';
+	echo'<script>window.location="/wp-admin/admin.php?page=settings"; </script>';
 endif;
 ?>
 
 <div class="wrap">
-	<?php    echo "<h2>" . __( 'Instellingen', 'tso' ) . "</h2>"; ?>
+	<?php    echo "<h2>" . __( 'Settings', 'tso' ) . "</h2>"; ?>
 <form method="POST">
 	
 		<p>
@@ -98,6 +98,7 @@ endif;
 							'URL voor profiel wachtwoord aanpassen'=> 'url_password_change',
 							'URL voor profiel bewerken aangepast'=> 'url_profile_edit_done',
 							'URL voor wachtwoord vergeten'=> 'url_password_forget',
+							'URL voor algemene voorwaarden'=> 'url_terms',
 						);
 		
 		foreach($array_urls as $key=>$url) : ?>
@@ -125,7 +126,7 @@ endif;
 
 
 		<p>
-			<input type="submit" name="submit" value="Opslaan" class="button button-primary button-large" />
+			<input type="submit" name="submit" value="Save" class="button button-primary button-large" />
 		</p>
 </form>
 		
