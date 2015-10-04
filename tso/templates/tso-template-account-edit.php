@@ -135,6 +135,7 @@ if(isset($_POST['submit'])){
 		$message .='<hr />';	
 		$message .='<h1>Oude gegevens</h1>';	
 		$message .='<h2>Gegevens ouders</h2>';
+		$message .='E-mail:' .$user->email . '<br />';
 		$message .='1ste Ouder / verzorger: '.$user->first_name_mother . ' ' . $user->last_name_mother .'<br />';
 		$message .='1ste Ouder / verzorger telefoon: '.$user->phone_mother.'<br />';
 		

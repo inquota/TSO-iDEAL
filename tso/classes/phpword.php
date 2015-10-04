@@ -16,9 +16,43 @@ class PHPWordCustom {
 	{
 		/* Note: any element you append to a document must reside inside of a Section. */
 		$section = $this->_phpWord->addSection();
-		$section->addImage($imageHeader);
+		$section->addImage($imageHeader,     
+		array(
+	        'width' => 459,
+	        'height' => 94,
+    	));
 		$header = array('size' => 16, 'bold' => true);
-		// 1. Basic table
+		
+		$section->addText(htmlspecialchars('Gegevens kinderen', ENT_COMPAT, 'UTF-8'), $header);
+		$section->addTextRun();
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Basisschool", ENT_COMPAT, 'UTF-8'));
+		$table->addCell(5000)->addText(htmlspecialchars($schooldObject->name, ENT_COMPAT, 'UTF-8'));
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Dagen opvang", ENT_COMPAT, 'UTF-8'));
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->days_care, ENT_COMPAT, 'UTF-8'));
+		
+		foreach($childObjects as $child){
+			$table->addRow();
+			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep", ENT_COMPAT, 'UTF-8'));
+			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'));
+		}
+		
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Mijn kind(eren) blijft/blijven niet op vaste dagen over", ENT_COMPAT, 'UTF-8'));
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting1, ENT_COMPAT, 'UTF-8'));
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Mijn kinderen blijven niet op de zelfde dagen over", ENT_COMPAT, 'UTF-8'));
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting2, ENT_COMPAT, 'UTF-8'));
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Bijzonderheden kind(eren)", ENT_COMPAT, 'UTF-8'));
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting3, ENT_COMPAT, 'UTF-8'));
+		
+		$section->addTextRun();
+		$section->addTextRun();		
+		
 		$section->addText(htmlspecialchars('Gegevens ouders', ENT_COMPAT, 'UTF-8'), $header);
 		$section->addTextRun();
 		
@@ -83,44 +117,7 @@ class PHPWordCustom {
 		$table->addCell(5000)->addText(htmlspecialchars($userObject->address_dentist, ENT_COMPAT, 'UTF-8'));
 		$table->addRow();
 		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_dentist, ENT_COMPAT, 'UTF-8'));
-		
-		$section->addTextRun();
-		$section->addTextRun();
-		
-		$section->addText(htmlspecialchars('Gegevens kinderen', ENT_COMPAT, 'UTF-8'), $header);
-		$section->addTextRun();
-		
-		$table = $section->addTable();
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Basisschool", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($schooldObject->name, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Dagen opvang", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->days_care, ENT_COMPAT, 'UTF-8'));
-		
-		foreach($childObjects as $child){
-			$table->addRow();
-			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep.", ENT_COMPAT, 'UTF-8'));
-			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'));
-		}
-		
-		$section->addTextRun();
-		$section->addTextRun();
-		
-		$table->addRow();
-		$table->addCell(5000)->addText(htmlspecialchars("Mijn kind(eren) blijft/blijven niet op vaste dagen over.", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting1, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(5000)->addText(htmlspecialchars("Mijn kinderen blijven niet op de zelfde dagen over.", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting2, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(5000)->addText(htmlspecialchars("Bijzonderheden kind(eren).", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting3, ENT_COMPAT, 'UTF-8'));
-		
-		
-		
-		
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_dentist, ENT_COMPAT, 'UTF-8'));		
 		
 		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($this->_phpWord, 'Word2007');
 		$objWriter->save($filename);
@@ -175,7 +172,11 @@ class PHPWordCustom {
 				);
 		
 		$section = $this->_phpWord->createSection(array('orientation'=>'landscape'));
-		$section->addImage($imageHeader);
+		$section->addImage($imageHeader,     
+		array(
+	        'width' => 459,
+	        'height' => 94,
+    	));
 		$header = array('size' => 15, 'bold' => true);
 		// 1. Basic table
 		$section->addText(htmlspecialchars('Betalingen van week ' . $week . ' - ' . date('Y'), ENT_COMPAT, 'UTF-8'), $header);

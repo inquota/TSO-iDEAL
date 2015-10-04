@@ -25,22 +25,23 @@ $error_flag = true;
 if(isset($_POST['submit'])){
 	
 	unset($_POST['submit']);
-	
+
 	// Get Child data
 	$child_last_names = $_POST['data']['Child']['child_last_name'];
 	$child_first_names = $_POST['data']['Child']['child_first_name'];
 	$child_groups = $_POST['data']['Child']['group'];
 	
 	$userCount = $wpdb->get_row( "SELECT COUNT(*) AS Total FROM {$table_users} WHERE email='".$_POST['email']."'", OBJECT );
+	$school = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id='".$_POST['school']."'", OBJECT );
 	
 	if(empty($_POST['email'])){
 		$error .= 'U heeft geen e-mail opgegeven.<br />';
 		$error_flag = false;
 	}elseif(!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
-		$error .= 'Geen geldig e-mail.';
+		$error .= 'Geen geldig e-mail.<br />';
 		$error_flag = false;
 	}elseif($userCount->Total == 1){
-		$error .= 'E-mail is al bij ons aangemeld. Wachtwoord vergeten? Klik <a href="'.$settings->url_password_forget.'">hier</a>.';
+		$error .= 'E-mail is al bij ons aangemeld. Wachtwoord vergeten? Klik <a href="'.$settings->url_password_forget.'">hier</a>.<br />';
 		$error_flag = false;
 	}
 
@@ -265,27 +266,35 @@ if(isset($_POST['submit'])){
 <table id="table-parents">
 	<tr>
 		<td>E-mail</td>
-		<td><input type="email" required="required" name="email" style="width: 293px;" /></td>
+		<td><input type="email" required="required" name="email" style="width: 293px;" value="<?php if(isset($_POST['email'])) { echo $_POST['email']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>1ste Ouder / verzorger</td>
-		<td><input type="text" required="required" name="last_name_mother" placeholder="Achternaam" /> <input type="text" required="required" name="first_name_mother" placeholder="Voornaam" /> <input placeholder="0600000000" type="text" required="required" name="phone_mother" placeholder="0600000000" size="10" maxlength="10" /></td>
+		<td>
+			<input type="text" required="required" name="last_name_mother" placeholder="Achternaam" value="<?php if(isset($_POST['last_name_mother'])) { echo $_POST['last_name_mother']; } ?>" /> 
+			<input type="text" required="required" name="first_name_mother" placeholder="Voornaam" value="<?php if(isset($_POST['first_name_mother'])) { echo $_POST['first_name_mother']; } ?>" /> 
+			<input placeholder="0600000000" type="text" required="required" name="phone_mother" placeholder="0600000000" size="10" maxlength="10" value="<?php if(isset($_POST['phone_mother'])) { echo $_POST['phone_mother']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>2de Ouder / verzorger</td>
-		<td><input type="text" name="last_name_father" placeholder="Achternaam" /> <input type="text" name="first_name_father" placeholder="Voornaam" /> <input type="text" name="phone_father" placeholder="0600000000" size="10" maxlength="10" /></td>
+		<td><input type="text" name="last_name_father" placeholder="Achternaam" value="<?php if(isset($_POST['last_name_father'])) { echo $_POST['last_name_father']; } ?>"/> 
+			<input type="text" name="first_name_father" placeholder="Voornaam" value="<?php if(isset($_POST['first_name_father'])) { echo $_POST['first_name_father']; } ?>" /> 
+			<input type="text" name="phone_father" placeholder="0600000000" size="10" maxlength="10" value="<?php if(isset($_POST['phone_father'])) { echo $_POST['phone_father']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>
-		<td><input type="text" required="required" name="address" /> Huisnummer <input type="text" required="required" name="number" size="5" maxlength="5" /></td>
+		<td><input type="text" required="required" name="address" value="<?php if(isset($_POST['address'])) { echo $_POST['address']; } ?>" /> 
+			Huisnummer <input type="text" required="required" name="number" size="5" maxlength="5" value="<?php if(isset($_POST['number'])) { echo $_POST['number']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Postcode en woonplaats</td>
-		<td><input type="text" required="required" name="postalcode" size="6" maxlength="6" /> <input type="text" required="required" name="city" /></td>
+		<td><input type="text" required="required" name="postalcode" size="6" maxlength="6" value="<?php if(isset($_POST['postalcode'])) { echo $_POST['postalcode']; } ?>" /> 
+			<input type="text" required="required" name="city" value="<?php if(isset($_POST['city'])) { echo $_POST['city']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Telefoon bij onbereikbaar</td>
-		<td><input type="text" required="required" name="phone_unreachable" size="10" maxlength="10" /> Relatie tot kind(eren) <input type="text" required="required" name="relation_child" /></td>
+		<td><input type="text" required="required" name="phone_unreachable" size="10" maxlength="10" value="<?php if(isset($_POST['phone_unreachable'])) { echo $_POST['phone_unreachable']; } ?>" /> 
+			Relatie tot kind(eren) <input type="text" required="required" name="relation_child" value="<?php if(isset($_POST['relation_child'])) { echo $_POST['relation_child']; } ?>" /></td>
 	</tr>
 </table>
 
@@ -293,15 +302,17 @@ if(isset($_POST['submit'])){
 <table id="table-doctor">
 	<tr>
 		<td>Naam</td>
-		<td><input type="text" required="required" name="name_doc" /> Telefoon <input type="text" required="required" name="phone_doc" size="10" maxlength="10" /></td>
+		<td><input type="text" required="required" name="name_doc" value="<?php if(isset($_POST['name_doc'])) { echo $_POST['name_doc']; } ?>" /> 
+			Telefoon <input type="text" required="required" name="phone_doc" size="10" maxlength="10" value="<?php if(isset($_POST['phone_doc'])) { echo $_POST['phone_doc']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>
-		<td><input type="text" required="required" name="address_doc" /> Huisnummer <input type="text" required="required" name="number_doc" size="5" maxlength="5" /></td>
+		<td><input type="text" required="required" name="address_doc" value="<?php if(isset($_POST['address_doc'])) { echo $_POST['address_doc']; } ?>" /> 
+			Huisnummer <input type="text" required="required" name="number_doc" size="5" maxlength="5" value="<?php if(isset($_POST['number_doc'])) { echo $_POST['number_doc']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Woonplaats</td>
-		<td><input type="text" required="required" name="city_doc" /></td>
+		<td><input type="text" required="required" name="city_doc" value="<?php if(isset($_POST['city_doc'])) { echo $_POST['city_doc']; } ?>" /></td>
 	</tr>
 </table>
 
@@ -310,15 +321,17 @@ if(isset($_POST['submit'])){
 <table id="table-dentist">
 	<tr>
 		<td>Naam</td>
-		<td><input type="text" required="required" name="name_dentist" /> Telefoon <input type="text" required="required" name="phone_dentist" size="10" maxlength="10" /></td>
+		<td><input type="text" required="required" name="name_dentist" value="<?php if(isset($_POST['name_dentist'])) { echo $_POST['name_dentist']; } ?>" /> 
+			Telefoon <input type="text" required="required" name="phone_dentist" size="10" maxlength="10" value="<?php if(isset($_POST['phone_dentist'])) { echo $_POST['phone_dentist']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Adres</td>
-		<td><input type="text" required="required" name="address_dentist" />  Huisnummer <input type="text" required="required" name="number_dentist" size="5" maxlength="5" /></td>
+		<td><input type="text" required="required" name="address_dentist" value="<?php if(isset($_POST['address_dentist'])) { echo $_POST['address_dentist']; } ?>" />  
+			Huisnummer <input type="text" required="required" name="number_dentist" size="5" maxlength="5" value="<?php if(isset($_POST['number_dentist'])) { echo $_POST['number_dentist']; } ?>" /></td>
 	</tr>
 	<tr>
 		<td>Woonplaats</td>
-		<td><input type="text" required="required" name="city_dentist" /></td>
+		<td><input type="text" required="required" name="city_dentist" value="<?php if(isset($_POST['city_dentist'])) { echo $_POST['city_dentist']; } ?>" /></td>
 	</tr>
 </table>
 
@@ -331,7 +344,11 @@ if(isset($_POST['submit'])){
 		<td style="width: 120px;">Basisschool</td>
 		<td>
 			<select name="school">
-			<option selected="selected" value="">--- Maak een keuze ----</option>
+			<?php if(isset($_POST['school'])) : ?>
+				<option selected="selected" value="<?php echo $school->id; ?>"><?php echo $school->name; ?></option>
+			<?php else : ?>
+				<option selected="selected" value="">--- Maak een keuze ----</option>
+			<?php endif; ?>												
 			<?php foreach($schools as $school) : ?>
 				<option value="<?php echo $school->id; ?>"><?php echo $school->name; ?></option>
 			<?php endforeach; ?>
@@ -341,11 +358,10 @@ if(isset($_POST['submit'])){
 	<tr>
 		<td>Dagen opvang</td>
 		<td>
-			<input type="checkbox"  name="days_care[]" value="Maandag" /> Maandag
-			<input type="checkbox"  name="days_care[]" value="Dinsdag" /> Dinsdag
-			<!--<input type="checkbox"  name="days_care[]" value="Woensdag" /> Woensdag-->
-			<input type="checkbox"  name="days_care[]" value="Donderdag" /> Donderdag
-			<input type="checkbox"  name="days_care[]" value="Vrijdag" /> Vrijdag
+			<input type="checkbox"  name="days_care[]" value="Maandag" <?php if(isset($_POST['days_care']) && $_POST['days_care'][0]){ echo "checked='checked'"; } ?> /> Maandag
+			<input type="checkbox"  name="days_care[]" value="Dinsdag" <?php if(isset($_POST['days_care']) && $_POST['days_care'][1]){ echo "checked='checked'"; } ?> /> Dinsdag
+			<input type="checkbox"  name="days_care[]" value="Donderdag" <?php if(isset($_POST['days_care']) && $_POST['days_care'][2]){ echo "checked='checked'"; } ?> /> Donderdag
+			<input type="checkbox"  name="days_care[]" value="Vrijdag" <?php if(isset($_POST['days_care']) && $_POST['days_care'][3]){ echo "checked='checked'"; } ?> /> Vrijdag
 		</td>
 	</tr>
 	
@@ -366,10 +382,6 @@ if(isset($_POST['submit'])){
 	        						<option value="<?php echo $group; ?>"><?php echo $group; ?></option>
 	        					<?php endforeach; ?>
 	        				</select> (<strong>Kies de juiste groep van uw kind</strong>)
-	        		<?php /*		
-	        		Geslacht 
-	        			<input type="radio" name="data[Child][child_gender][]" value="jongen" /> Jongen 
-	        			<input type="radio" name="data[Child][child_gender][]" value="meisje" /> Meisje*/ ?>
 				</li>
 			</ul>
 			<br />
@@ -378,21 +390,21 @@ if(isset($_POST['submit'])){
 	</tr>
 	<tr>
 		<td>Mijn kind(eren) blijft/blijven niet op vaste dagen over.</td>
-		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting1"></textarea></td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting1"><?php if(isset($_POST['toelichting1'])) { echo $_POST['toelichting1']; } ?></textarea></td>
 	</tr>
 	<tr>
 		<td>Mijn kinderen blijven niet op de zelfde dagen over.</td>
-		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting2"></textarea></td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting2"><?php if(isset($_POST['toelichting2'])) { echo $_POST['toelichting2']; } ?></textarea></td>
 	</tr>
 	<tr>
 		<td>Bijzonderheden kind(eren).</td>
-		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting3"></textarea></td>
+		<td><textarea placeholder="Vul hier uw toelichting in..." name="toelichting3"><?php if(isset($_POST['toelichting3'])) { echo $_POST['toelichting3']; } ?></textarea></td>
 	</tr>
 	<?php endif; ?>
 </table>
 <hr />
 <p>
-	<input type="checkbox" value="agree" name="t_and_c" required="required"  /> Ik ga akkoord met de <a href="https://delunchclub-opo.nl/?p=63" title="algemene voorwaarden" target="_blank">algemene voorwaarden</a>	
+	<input type="checkbox" value="agree" name="t_and_c" required="required" <?php if(isset($_POST['t_and_c']) && $_POST['t_and_c'] == 'agree'){ echo "checked='checked'"; } ?>  /> Ik ga akkoord met de <a href="<?php echo $settings->url_terms; ?>" title="algemene voorwaarden" target="_blank">algemene voorwaarden</a>	
 </p>
 
 <p>
