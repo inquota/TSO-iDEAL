@@ -38,9 +38,12 @@ endif;
 
 
 <div class="wrap">
-	<?php    echo "<h2>" . __( 'Children', 'oscimp_trdom' ) . "</h2>"; ?>
+	<?php    echo "<h2>" . __( 'Kinderen', 'oscimp_trdom' ) . "</h2>"; ?>
 	<p>
-		<a href="#" class="excel_export">Excel export</a>
+		<a href="#" class="excel_export button button-primary button-large">Excel export</a>
+	</p>
+	<p>
+		<span id="ajaxSpinner"><strong>Laden...even geduld...</strong></span>
 	</p>
 <form method="POST">
 	
@@ -73,6 +76,9 @@ endif;
 
     <tbody>
     	<?php foreach($items as $item) : ?>
+    		<?php 
+    		if($item->name_school != NULL) :
+    		?>
         <tr class="alternate">
             <th class="check-column" scope="row"><input type="checkbox" value="<?php echo $item->id; ?>" name="id[]" /></th>
             <td class="column-columnname"><?php echo $item->id; ?></td>
@@ -81,6 +87,7 @@ endif;
 			<td class="column-columnname"><?php echo $item->first_name; ?> <?php echo $item->last_name; ?></td>
 			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($item->created_at)); ?></td>
         </tr>
+        <?php endif; ?>
         <?php endforeach; ?>
     </tbody>
 </table>
@@ -105,10 +112,26 @@ if ( $page_links ) {
 	
 </div>
 <script>
+jQuery(document).ready(function(){
+	jQuery('#ajaxSpinner').hide();
 	jQuery('.excel_export').click(function (event) {
-	event.preventDefault();		
-	jQuery.get( "/tso-export-children.php", function( data ) {
-  alert( "Er is een e-mail gestuurd naar <?php echo $settings->tso_admin_mail ?> " );
+		event.preventDefault();		
+		
+		jQuery.ajax({
+		    url: '/tso-export-children.php',
+		    type: 'GET',
+		    beforeSend: function() {
+		       jQuery('#ajaxSpinner').show();
+		    },
+		    complete: function() {
+		        jQuery('#ajaxSpinner').hide();
+		        alert( "Er is een e-mail gestuurd naar <?php echo $settings->tso_admin_mail ?> " );
+		    },
+		    success: function(result) {
+		        // TODO: handle the results
+		    }
+		});
+	});
 });
-});
+
 </script>

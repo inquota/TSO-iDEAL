@@ -1,10 +1,4 @@
 <?php
-/***************DO NOT ALLOW DIRECT ACCESS************************************/
-if ( stripos( $_SERVER[ 'REQUEST_URI' ], basename( __FILE__ ) ) !== FALSE ) { // TRUE if the script's file name is found in the URL
-  header( 'HTTP/1.0 403 Forbidden' );
-  die( "<h2>Forbidden! You don't have permission to access this page.</h2>" );
-}
-/******/
 define('WP_USE_THEMES', false);
 define('DONOTCACHEPAGE', true);
 date_default_timezone_set("Europe/Amsterdam");
@@ -14,8 +8,8 @@ require_once 'wp-content/plugins/tso/classes/lib/phpexcel-1.8.0/PHPExcel/IOFacto
 $functionsClass = new Functions();
 
 $fileType = 'Excel5';
-$fileName = 'TSO-borger-odoorn.xls';
-$fileNameNew = 'TSO-borger-odoorn-'.date('d-m-Y-H-i').'.xls';
+$fileName = 'TSO-borger-odoorn-aangepast.xls';
+$fileNameNew = 'TSO-borger-odoorn-'.date('d-m-Y-H-i-s').'.xls';
 
 // Read the file
 $objReader = PHPExcel_IOFactory::createReader($fileType);
@@ -61,8 +55,18 @@ foreach($schools as $school) {
 	$sheetNames = $objPHPExcel->getSheetNames();
 	if(!in_array($school->SchoolName, $sheetNames)) {
 		
-		$objWorkSheet = $objPHPExcel->createSheet($i);
+		//$objWorkSheet = $objPHPExcel->createSheet($i);
+		//$objWorkSheet->setTitle($school->SchoolName);
+		
+		//  Get the current sheet with all its newly-set style properties
+		$objWorkSheetBase = $objPHPExcel->getSheet();
+		
+		//  Create a clone of the current sheet, with all its style properties
+		$objWorkSheet = clone $objWorkSheetBase;
+		//  Set the newly-cloned sheet title
 		$objWorkSheet->setTitle($school->SchoolName);
+		//  Attach the newly-cloned sheet to the $objPHPExcel workbook
+		$objPHPExcel->addSheet($objWorkSheet);
 	
 	}
 	
@@ -71,8 +75,8 @@ foreach($schools as $school) {
 
 foreach($objPHPExcel->getSheetNames() as $key_sheet => $sheet) {
 	
-	$cstart = 0;
-	$rstart = 1;
+	$cstart = 1;
+	$rstart = 15;
 	$count = 1;
 	
 	foreach($children as $item) {
@@ -83,24 +87,24 @@ foreach($objPHPExcel->getSheetNames() as $key_sheet => $sheet) {
 		$objWorksheet = $objPHPExcel->getSheet($key_sheet);
 		
         $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart, $rstart, $item->SchoolName);
-		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 1, $rstart, $item->ChildFirstName . ' ' . $item->ChildLastName);
-		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 2, $rstart, $item->UserEmail);
+		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 8, $rstart, $item->ChildFirstName . ' ' . $item->ChildLastName);
+		$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 9, $rstart, $item->UserEmail);
 		
 			
 		$daysParts = explode(',',$item->DaysCare); 
 		if(!empty($daysParts[0])){
 			foreach($daysParts as $day) {
 				if($day == 'Maandag') {
-					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 3, $rstart, 'X');
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 10, $rstart, 'X');
 				}
 				if($day == 'Dinsdag') {
-					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 4, $rstart, 'X');
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 11, $rstart, 'X');
 				}
 				if($day == 'Donderdag') {
-					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 5, $rstart, 'X');
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 12, $rstart, 'X');
 				}
 				if($day == 'Vrijdag') {
-					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 6, $rstart, 'X');
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($cstart + 13, $rstart, 'X');
 				}
 			}	
 		}
@@ -128,12 +132,10 @@ foreach ($objPHPExcel->getWorksheetIterator() as $worksheet) {
 // Write the file
 $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $fileType);
 $objWriter->save($fileNameNew);
-//echo 'Saved...' . time();
 
 // Send mails
 $message = '<h2>Excel export aanmeldingen</h2>';
 $message .= 'Export van alle kinderen per school.';
 $blog_title = get_bloginfo(); 
-$functionsClass->SendMail($blog_title, 'Excel export aanmeldingen ', 'jarahdamiel@gmail.com', $message, $fileNameNew);
-//$settings->tso_admin_mail
-echo "OK";
+$functionsClass->SendMail($blog_title, 'Excel export aanmeldingen ', $settings->tso_admin_mail, $message, $fileNameNew);
+echo 'Saved...' . time();
