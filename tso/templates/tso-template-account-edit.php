@@ -12,6 +12,9 @@ $settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT
 if(empty($_SESSION['user'])){
 	echo'<script>window.location="'.$settings->url_login.'"; </script>';
 }
+$path = $_SERVER['DOCUMENT_ROOT'];
+require_once $path.'/wp-content/plugins/tso/classes/phpword.php';
+$PHPWordCustom = new PHPWordCustom();
 
 $sessionUser = $_SESSION['user'];
 $sessionUserId = $sessionUser->id;
@@ -89,13 +92,15 @@ if(isset($_POST['submit'])){
 		$userObject = $wpdb->get_row( "SELECT * FROM {$table_users} WHERE id = ".$sessionUser->id, OBJECT );	
 		
 		$post_data=array();
+		$post_data_clean=array();
 		foreach($values as $key=>$value){
 			$post_data[] = ($value != $user->$key) ? '<span style="color:green;">'.$value.'</span>' : $user->$key;
+			$post_data_clean[] = ($value != $user->$key) ? $value : $user->$key;
 		}	
 		$message ='Er zijn een aantal wijzigingen in een account. De wijzigingen worden in het groen weergegeven.<br /><br />';
 		$message .='<h1>Nieuwe gegevens</h1>';	
 		$message .='<h2>Gegevens ouders</h2>';
-		$message .='E-mail:' .$post_data[0] . '<br />';
+		$message .='E-mail: ' .$post_data[0] . '<br />';
 		
 		$message .='1ste Ouder / verzorger: '.$post_data[4] . ' ' . $post_data[5] .'<br />';
 		$message .='1ste Ouder / verzorger telefoon: '.$post_data[6].'<br />';
@@ -112,6 +117,12 @@ if(isset($_POST['submit'])){
 		
 		$message .='<h3>Kinderen</h3>';
 		foreach($children as $child){
+			if(count($children) == 1)
+			{
+				$childrenNew = $child->first_name.' '.$child->last_name;
+			}else{
+				$childrenNew[] = $child->first_name.' '.$child->last_name;
+			}
 			$message .='Kind en groep: '.$child->first_name.' '.$child->last_name.' (groep: '.$child->groep.' )<br />';
 		}
 		
@@ -172,17 +183,27 @@ if(isset($_POST['submit'])){
 		$message .='Bijzonderheden kind(eren): '.$user->toelichting3.'<br /><br />';
 		$message .='Dagen opvang: '.$user->days_care.'<br /><br />';
 		
+		if(is_array($childrenNew)){
+			$subject_children = implode(', ', $childrenNew);
+		}else{
+			$subject_children = $childrenNew;
+		}
+		$subject_children_clean = str_replace(' ', '-', $subject_children);
+		$subject_children_clean = str_replace(',', '-', $subject_children);
+		
+		$filename = 'Aanmelding-wijziging-'.strtolower($subject_children_clean).'.docx';
+		
+		$PHPWordCustom->createWordUserEdit($post_data_clean, $children, $path.$filename, 'https://delunchclub-opo.nl/wp-content/uploads/2015/05/cropped-header_27-51.jpg');
+		
 		// Send mails
 		$blog_title = get_bloginfo(); 
-		$functionsClass->SendMail($blog_title, 'Account gewijzigd van aanmelding', $settings->tso_admin_mail, $message);
-		echo'<script>window.location="'.$settings->url_profile_edit_done.'"; </script>';
-	}
-
-
-}
-
-?>
+		$functionsClass->SendMail($blog_title, 'Account gewijzigd van aanmelding ' . $subject_children, $settings->tso_admin_mail, $message, $path.$filename);
+		unlink($path.$filename);
+		echo'<script>window.location="'.$settings->url_profile_edit_done.'"; </script>'; 
 		
+	}
+}
+?>	
 	<style>
 	table {
 		width: 100%;

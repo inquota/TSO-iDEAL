@@ -72,6 +72,7 @@ $cards = $wpdb->get_results(
 	<td><strong>Groep</strong></td>
 	<td><strong>School</strong></td>
 	<td><strong>Aantal</strong></td>
+	<td><strong>Datum</strong></td>
 	<td><strong>Bedrag</strong></td>
 </tr>
 <?php foreach($salesPerChild as $child) : ?>
@@ -85,6 +86,14 @@ $cards = $wpdb->get_results(
 			");
 			foreach($stripCards as $card) {
 				echo $card->card . '<br />';
+			}
+		 ?></td>
+		 <td valign="top" style="border-bottom: 1px solid #000; padding-top: 2px; padding-bottom: 2px;"><?php 
+	$stripCards = $wpdb->get_results("SELECT *  FROM {$table_submissions}
+			 WHERE price != 0 AND payment_status = 1 AND child_id = ".$child->childId."
+			");
+			foreach($stripCards as $card) {
+				echo date('d-m-Y H:i', strtotime($card->created_at . "+2 hours")) . '<br />';
 			}
 		 ?></td>
 	<td valign="top" style="border-bottom: 1px solid #000;">&euro; <?php echo number_format( $child->Price / 100, 2, ',', '.' ); ?></td>
