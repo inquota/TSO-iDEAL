@@ -24,11 +24,14 @@ $num_of_pages = ceil( $total / $limit );
 $children = $wpdb->get_results( 
 "
 SELECT 
-	*
+	Child.*,
+	User.*
 FROM 
-	{$table_children}
+	{$table_children} AS Child 
+LEFT JOIN 
+	{$table_users} AS User ON (Child.user_id=User.id)
 ORDER BY 
-	last_name 
+	Child.last_name 
 ASC
 "
 );
@@ -152,7 +155,7 @@ endif;
 				<select name="child_id">
 					<?php foreach($children as $child) : ?>
 						<?php if(!empty($child->first_name) && !empty($child->last_name)) : ?>
-							<option value="<?php echo $child->id; ?>"><?php echo $child->last_name; ?>, <?php echo $child->first_name; ?></option>
+							<option value="<?php echo $child->id; ?>"><?php echo $child->last_name; ?>, <?php echo $child->first_name; ?> - <?php echo $child->first_name_father; ?> & <?php echo $child->first_name_mother; ?></option>
 						<?php endif; ?>
 					<?php endforeach; ?>
 				</select>
