@@ -72,7 +72,7 @@ $schooldObject = $wpdb->get_row( "SELECT * FROM {$table_schools} WHERE id =".$us
 
 $card = array_filter($session_data['card']);
 
-if ($oIdeal->validatePayment($trxid, 1,$settings->targetpay_testmode) == true) {
+if ($oIdeal->validatePayment($trxid, 0,$settings->targetpay_testmode) == true) {
 	
 	if(count($childObject) > 1){
 			

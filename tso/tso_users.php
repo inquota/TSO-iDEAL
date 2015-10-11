@@ -52,13 +52,26 @@ endif;
 
 <div class="wrap">
 	<?php if(isset($_GET['page']) && $_GET['page']=='users'  && isset($_GET['view'])) : ?>
-
 	<?php
 	// Load data for view
 	$user = $wpdb->get_row( "SELECT * FROM {$table_users}  WHERE id = ".$_GET['view']."", OBJECT);
 	$school = $wpdb->get_row( "SELECT * FROM {$table_schools}  WHERE id = ".$user->school_id."", OBJECT);
 	$children = $wpdb->get_results( "SELECT Child.* FROM {$table_children} AS Child WHERE user_id = ".$user->id."");
+	
+	$aChildren=array();
+	foreach($children as $child) {
+		$aChildren[]= $child->first_name . ' ' . $child->last_name;
+	}
+	if(count($aChildren) > 1){
+		$aChildren = implode('-', $aChildren);
+	}else{
+		$aChildren = $aChildren[0];
+	}
 	?>
+	<p>
+		<a href="#" class="exportToPDF button button-primary button-large" id="export<?php echo $aChildren; ?>">PDF Export</a>
+	</p>
+	<div id="tables">
 		<?php    echo "<h2>" . __( 'Gegevens ouders', 'oscimp_trdom' ) . "</h2>"; ?>
 		<table style="padding: 5px; background: #FFF; width: 100%;">
 		<?php foreach ($fields as $key => $value) : ?>
@@ -80,14 +93,10 @@ endif;
 				<td>Dagen opvang</td>
 				<td><?php echo $user->days_care; ?></td>
 			</tr>
-			<tr>
-				<td>Naam</td>
-				<td>Groep</td>
-			</tr>
 		<?php foreach ($children as $value) : ?>
 			<tr>
-				<td><?php echo $value->first_name; ?> <?php echo $value->last_name; ?></td>
-				<td><?php echo $value->groep; ?></td>
+				<td>Naam en groep</td>
+				<td><?php echo $value->first_name; ?> <?php echo $value->last_name; ?> - Groep <?php echo $value->groep; ?></td>
 			</tr>
 		<?php endforeach; ?>
 			<tr>
@@ -105,7 +114,7 @@ endif;
 		</table>
 		
 	<?php endif; ?>
-	
+	</div>
 	
 	
 	<?php    echo "<h2>" . __( 'Aanmeldingen', 'oscimp_trdom' ) . "</h2>"; ?>
@@ -183,3 +192,25 @@ if ( $page_links ) {
 </form>
 		
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.1.135/jspdf.min.js"></script>
+<script>
+
+var doc = new jsPDF();
+var specialElementHandlers = {
+    '#editor': function (element, renderer) {
+        return true;
+    }
+};
+
+jQuery('.exportToPDF').click(function (event) {
+	event.preventDefault();		
+	var id=event.target.id;
+	var weeknumber = id.replace("export", "");
+    doc.fromHTML(jQuery('#tables').html(), 15, 15, {
+        'width': 170,
+            'elementHandlers': specialElementHandlers
+    });
+    doc.save('Aanmelding-'+weeknumber+'.pdf');
+});
+</script>

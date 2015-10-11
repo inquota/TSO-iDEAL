@@ -5,15 +5,29 @@ $table_submissions = $wpdb->prefix . 'tso_submissions';
 $table_schools = $wpdb->prefix . 'tso_schools';
 $table_users = $wpdb->prefix . 'tso_users';
 $table_children = $wpdb->prefix . 'tso_children';
+$table_settings = $wpdb->prefix . 'tso_settings';
+// get settings
+$settings = $wpdb->get_row( "SELECT * FROM {$table_settings} WHERE id=1", OBJECT );
+
+if(isset($_GET['page']) && $_GET['page'] == 'tso_payments_per_week' && isset($_GET['action']) && $_GET['action'] == 'markaspaid' && isset($_GET['id'])) {
+		// Save
+	$wpdb->update( 
+	$table_submissions, 
+			array( 
+				'payment_status' => 1,
+			), 
+			array( 'id' => $_GET['id'] )
+		);
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=tso_payments_per_week"; </script>';
+}
 ?>
-
-
 <div class="wrap">
 	
 	<h1>Huidige week: Week <?php echo date('W'); ?></h1>
+	<!--
 	<p>
 		<a href="#" class="exportToPDFCurrentWeek" id="exportCurrentWeek<?php echo date('W'); ?>">Export</a>
-	</p>
+	</p>-->
 	<?php
 		$submissionsCurrentWeek = $wpdb->get_results( 
 		"
@@ -38,7 +52,7 @@ FROM
 	LEFT JOIN {$table_schools} AS School ON (Submission.school_id=School.id)
 	LEFT JOIN {$table_children} AS Child ON (Submission.child_id=Child.id)
 		WHERE year(Submission.created_at)= ".date('Y')." AND week(Submission.created_at, 3)= ".date('W')."
-		ORDER BY Submission.created_at ASC, School.name ASC
+		ORDER BY Submission.created_at DESC, School.name ASC
 		"
 		);
 		
@@ -77,7 +91,7 @@ FROM
 			<td class="column-columnname"><?php echo $resultCurrentWeek->groep; ?></td>
 			<td class="column-columnname"><?php echo $resultCurrentWeek->first_name . ' ' . $resultCurrentWeek->last_name; ?></td>
 			<td class="column-columnname"><?php echo $resultCurrentWeek->card; ?></td>
-			<td class="column-columnname"><?php if($resultCurrentWeek->payment_status==1) { echo "<span style='color: green;'>Ja</span>"; }else{ echo "<span style='color: red;'>Nee</span>"; } ?></td>
+			<td class="column-columnname"><?php if($resultCurrentWeek->payment_status==1) { echo "<span style='color: green;'>Ja</span>"; }else{ echo "<span style=\"color: red;\">Nee [ <a onClick=\"return confirm('Weet je het zeker?');\" title='Markeren als betaald' href='?page=tso_payments_per_week&action=markaspaid&id=".$resultCurrentWeek->id."'>Betaald</a> ]</span>"; } ?></td>
 			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($resultCurrentWeek->created_at . "+2 hours")); ?></td>
 			<?php
 			if($resultCurrentWeek->payment_status==1) {
@@ -136,7 +150,9 @@ FROM
 	LEFT JOIN {$table_users} AS User ON (Submission.user_id=User.id) 
 	LEFT JOIN {$table_schools} AS School ON (Submission.school_id=School.id)
 	LEFT JOIN {$table_children} AS Child ON (Submission.child_id=Child.id)
-		WHERE year(Submission.created_at)= ".date('Y')." AND week(Submission.created_at, 3)= ".$i.""
+		WHERE year(Submission.created_at)= ".date('Y')." AND week(Submission.created_at, 3)= ".$i."
+		ORDER BY Submission.created_at DESC, School.name ASC
+		"
 		);
 		
 		
@@ -156,7 +172,12 @@ FROM
 	<?php
 	if(!empty($submissions)) :
 	?>
-	<h2>Week <?php echo $i; ?> <a href="#" class="toggleWeek" id="<?php echo $i; ?>">tonen/verbergen</a> <a href="#" class="exportToPDF" id="export<?php echo $i; ?>">Export</a></h2>
+	<h2>
+		Week <?php echo $i; ?> <a href="#" class="toggleWeek" id="<?php echo $i; ?>">tonen/verbergen</a>
+		<?php if(date('Y') . date('W') > date('Y') . $i) : ?> 
+			<a href="#" class="exportToPDF" id="export<?php echo $i; ?>">Export</a>
+		<?php endif; ?>			
+	</h2>
 	<div style="display: none;" id="week<?php echo $i; ?>">
 	<table class="widefat fixed" cellspacing="0">
 		<thead>
@@ -180,7 +201,7 @@ FROM
 			<td class="column-columnname"><?php echo $result->groep; ?></td>
 			<td class="column-columnname"><?php echo $result->first_name . ' ' . $result->last_name; ?></td>
 			<td class="column-columnname"><?php echo $result->card; ?></td>
-			<td class="column-columnname"><?php if($result->payment_status==1) { echo "<span style='color: green;'>Ja</span>"; }else{ echo "<span style='color: red;'>Nee</span>"; } ?></td>
+			<td class="column-columnname"><?php if($result->payment_status==1) { echo "<span style='color: green;'>Ja</span>"; }else{ echo "<span style='color: red;'>Nee [ <a onClick=\"return confirm('Weet je het zeker?');\" title='Markeren als betaald' href='?page=tso_payments_per_week&action=markaspaid&id=".$result->id."'>Betaald</a> ]</span>"; } ?></td>
 			<td class="column-columnname"><?php echo date('d-m-Y H:i:s', strtotime($result->created_at . "+2 hours")); ?></td>
 			<?php
 			if($result->payment_status==1) {
@@ -192,7 +213,7 @@ FROM
 		</tbody>
 	</table>
 	<p>
-		Totaal: <?php echo (array_sum($totalPriceWeek) / 100); ?> EURO (alleen betaalde)
+		<h3>Totaal: € <?php echo (array_sum($totalPriceWeek) / 100); ?> (alleen betaalde)</h3>
 	</p>
 	<p>
 		<table>
@@ -218,7 +239,6 @@ FROM
 	endfor; 
 	?>
 <div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.1.135/jspdf.min.js"></script>
 <script>
 jQuery('.toggleWeek').click(function (event) {
 event.preventDefault();		
@@ -231,24 +251,29 @@ event.preventDefault();
   }
 });
 
-var doc = new jsPDF();
-var specialElementHandlers = {
-    '#editor': function (element, renderer) {
-        return true;
-    }
-};
-
 jQuery('.exportToPDF').click(function (event) {
 	event.preventDefault();		
 	var id=event.target.id;
-	var weeknumber = id.replace("export", "");
+	var week = id.replace("export", "");
 	var d = new Date();
-	var year = d.getFullYear(); 
-    doc.fromHTML(jQuery('#week'+weeknumber).html(), 15, 15, {
-        'width': 170,
-            'elementHandlers': specialElementHandlers
-    });
-    doc.save('Betalingen-week'+weeknumber+'-'+year+'.pdf');
+	var year = d.getFullYear();
+	
+	jQuery.ajax({
+	    url: '/tso-export-payments-last-week.php',
+	    type: 'POST',
+	    data : { week: week, year :year  },
+	    beforeSend: function() {
+	       
+	    },
+	    complete: function(data) {
+	        
+	        alert( "Er is een e-mail gestuurd naar <?php echo $settings->tso_admin_mail ?> " );
+	    },
+	    success: function(result) {
+	        
+	    }
+	}); 
+
 });
 
 jQuery('.exportToPDFCurrentWeek').click(function (event) {
@@ -257,11 +282,20 @@ jQuery('.exportToPDFCurrentWeek').click(function (event) {
 	var weeknumber = id.replace("exportCurrentWeek", "");
 	var d = new Date();
 	var year = d.getFullYear(); 
-    doc.fromHTML(jQuery('#exportToPDFCurrentWeek').html(), 15, 15, {
-        'width': 170,
-            'elementHandlers': specialElementHandlers
-    });
-    doc.save('Betalingen-week'+weeknumber+'-'+year+'.pdf');
+	
+	jQuery.ajax({
+	    url: '/tso-export-payments-last-week.php',
+	    type: 'POST',
+	    data : { week: week, year :year  },
+	    beforeSend: function() {
+	       
+	    },
+	    complete: function(data) {
+	        alert( "Er is een e-mail gestuurd naar <?php echo $settings->tso_admin_mail ?> " );
+	    },
+	    success: function(result) {
+	        
+	    }
+	}); 
 });
-
 </script>

@@ -1,6 +1,8 @@
 <?php
 require_once 'lib/swiftmailer-5.4.0/lib/swift_required.php';
-
+/**
+ * @author Jarah de Jong
+ */
 class Functions {
 	/**
 	 * Generate a random password
@@ -35,6 +37,7 @@ class Functions {
 	/**
 	 * Send an E-mail with SwiftMailer
 	 *
+	 * @author Jarah de Jong
 	 * @param string $subject
 	 * @param string $to
 	 * @param string $_message
@@ -43,9 +46,17 @@ class Functions {
 	 */
 	public function SendMail($blog_title, $subject, $to, $_message, $attachment = null)
 	{
-		$this->SendEmailPHP($blog_title, $subject, $to, $_message, $attachment);
+		$this->SendEmailSWIFT($blog_title, $subject, $to, $_message, $attachment);
 	} 
-	
+	/**
+	 * Send an E-mail with native php mail().
+	 * 
+	 * @author Jarah de Jong
+	 * @param string $subject
+	 * @param string $to
+	 * @param string $_message
+	 * @param string|null $attachment
+	 */
 	private function SendEmailPHP($blog_title, $subject, $to, $_message, $attachment = null)
 	{
 		if($to==null || $to == false){
@@ -115,15 +126,24 @@ class Functions {
 			}
 		}
 	}
-	
-	private function SendEmailSWIFT($blog_title, $subject, $to, $_message, $attachment = null)
+	/**
+	 * Send an Email with SWIFTMailer
+	 * 
+	 * @author Jarah de Jong
+	 * @param string $blog_title
+	 * @param string $subject
+	 * @param string $to
+	 * @param string $_message
+	 * @param string|null $attachment
+	 */
+	public function SendEmailSWIFT($blog_title, $subject, $to, $_message, $attachment = null)
 	{
 		// Create the Transport
-		/*$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
-		  ->setUsername('info@websitevorm.nl')
-		  ->setPassword('GXnECZWS5BYZ2yn_CwvrJA')
-		  ;*/
-		$transport = Swift_MailTransport::newInstance();				
+		$transport = Swift_SmtpTransport::newInstance('smtp.mandrillapp.com', 25)
+		  ->setUsername('jarahzakelijk@gmail.com') //info@websitevorm.nl
+		  ->setPassword('P7I1CSVRRNJYG6bUzzr4zg') //GXnECZWS5BYZ2yn_CwvrJA
+		  ;
+		//$transport = Swift_MailTransport::newInstance();				
 		// Create the Mailer using your created Transport
 		$mailer = Swift_Mailer::newInstance($transport);
 		
@@ -139,8 +159,10 @@ class Functions {
 		// if we have multiple receivers use bcc  
 		if(count($emails) > 1 && is_array($emails)){
 			$message->setBcc($emails);
+			$this->MailLog(implode(',', $emails), $subject, $_message);
 		}else{
 			$message->addTo($to);
+			$this->MailLog($to, $subject, $_message);
 		}  
 		
 		if($attachment != null) {
@@ -148,10 +170,11 @@ class Functions {
   			$message->attach(Swift_Attachment::fromPath($attachment));
 		}
 		
+		$headers = $message->getHeaders();
+		$headers->addTextHeader('X-MC-Subaccount', 'websitevorm');
+		
 		// Send the message
 		$mailer->send($message);
-		
-		$this->MailLog($to, $subject, $_message);
 		
 		return true;
 	}

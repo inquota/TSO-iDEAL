@@ -11,8 +11,137 @@ class PHPWordCustom {
 		// Creating the new document...
 		$this->_phpWord = new \PhpOffice\PhpWord\PhpWord();
 	}
-	
+	/**
+	 * Create a Word document with data of user Registration.
+	 * 
+	 * @author Jarah de Jong
+	 * @param object $userObject
+	 * @param object $childObjects
+	 * @param object $schooldObject
+	 * @param string $filename
+	 * @param string $imageHeader
+	 */
 	public function createWordUserRegistration($userObject, $childObjects, $schooldObject, $filename, $imageHeader)
+	{
+		/* Note: any element you append to a document must reside inside of a Section. */
+		//$section = $this->_phpWord->createSection(array('orientation'=>'landscape'));
+		$section = $this->_phpWord->addSection();
+		$section->addImage($imageHeader,     
+		array(
+	        'width' => 459,
+	        'height' => 94,
+    	));
+		$header = array('size' => 14, 'bold' => true);
+		
+		$textParams = array('size' => 10);
+		// This is used to remove "padding" below text-lines
+		$noSpace = array('spaceAfter' => 0, 'spaceBefore' => 0);
+		
+		$section->addText(htmlspecialchars('Gegevens kinderen', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Basisschool", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($schooldObject->name, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Dagen opvang", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->days_care, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		
+		foreach($childObjects as $child){
+			$table->addRow();
+			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		}
+		
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Mijn kind(eren) blijft/blijven niet op vaste dagen over", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting1, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Mijn kinderen blijven niet op de zelfde dagen over", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting2, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Bijzonderheden kind(eren)", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting3, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		
+		$section->addTextRun();
+		$section->addText(htmlspecialchars('Gegevens ouders', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("E-mail", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->email, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("1ste Ouder / verzorger", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->first_name_mother . ' ' . $userObject->last_name_mother, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("2de Ouder / verzorger", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->first_name_father.' '.$userObject->last_name_father, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Adres", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->address . ' ' . $userObject->number, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Postcode en woonplaats", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->postalcode . ' ' . $userObject->city, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Telefoon bij onbereikbaar", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->phone_unreachable, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Relatie tot kind(eren) ", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->relation_child, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		
+		$section->addTextRun();
+		$section->addText(htmlspecialchars('Gegevens dokter', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->name_doc, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Telefoon", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->phone_doc, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Adres", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->address_doc, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Huisnummer", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->number_doc, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_doc, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+				
+		$section->addTextRun();				
+		$section->addText(htmlspecialchars('Gegevens tandarts', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->name_dentist, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Telefoon", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->phone_dentist, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Adres", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->address_dentist, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Huisnummer", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->number_dentist, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_dentist, ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);		
+		
+		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($this->_phpWord, 'Word2007');
+		$objWriter->save($filename);
+	}
+	/**
+	 * Create a Word document with data of user registration.
+	 * 
+	 * @author Jarah de Jong
+	 * @param object $userObject
+	 * @param object $childObjects
+	 * @param string $filename
+	 * @param string $imageHeader
+	 */
+	public function createWordUserEdit($post, $children, $filename, $imageHeader)
 	{
 		/* Note: any element you append to a document must reside inside of a Section. */
 		$section = $this->_phpWord->addSection();
@@ -23,103 +152,101 @@ class PHPWordCustom {
     	));
 		$header = array('size' => 16, 'bold' => true);
 		
-		$section->addText(htmlspecialchars('Gegevens kinderen', ENT_COMPAT, 'UTF-8'), $header);
-		$section->addTextRun();
+		$textParams = array('size' => 10);
+		// This is used to remove "padding" below text-lines
+		$noSpace = array('spaceAfter' => 0, 'spaceBefore' => 0);
+		
+		$section->addText(htmlspecialchars('Gegevens kinderen', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
 		
 		$table = $section->addTable();
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Basisschool", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($schooldObject->name, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Dagen opvang", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->days_care, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Dagen opvang", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[26], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		
-		foreach($childObjects as $child){
+		foreach($children as $child){
 			$table->addRow();
-			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep", ENT_COMPAT, 'UTF-8'));
-			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'));
+			$table->addCell(5000)->addText(htmlspecialchars("Kind en groep", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+			$table->addCell(5000)->addText(htmlspecialchars($child->first_name.' ' . $child->last_name. ' (groep: '.$child->groep.')', ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		}
 		
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Mijn kind(eren) blijft/blijven niet op vaste dagen over", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting1, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Mijn kind(eren) blijft/blijven niet op vaste dagen over", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[23], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Mijn kinderen blijven niet op de zelfde dagen over", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting2, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Mijn kinderen blijven niet op de zelfde dagen over", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[24], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Bijzonderheden kind(eren)", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->toelichting3, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Bijzonderheden kind(eren)", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[25], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		
-		$section->addTextRun();
+		$section->addTextRun();				
+		$section->addText(htmlspecialchars('Gegevens ouders', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
+		
+		$table = $section->addTable();
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("E-mail", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[0], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("1ste Ouder / verzorger", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[4] . ' ' . $post[5], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("1ste Ouder / verzorger telefoon", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[6], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("2de Ouder / verzorger", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[1].' '.$post[2], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("2e Ouder / verzorger telefoon", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[3], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Adres en huisnummer", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[7] . ' ' . $post[8], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Postcode en woonplaats", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[9] . ' ' . $post[10], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Telefoon bij onbereikbaar", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[11], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addRow();
+		$table->addCell(3000)->addText(htmlspecialchars("Relatie tot kind(eren) ", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[12], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+
 		$section->addTextRun();		
-		
-		$section->addText(htmlspecialchars('Gegevens ouders', ENT_COMPAT, 'UTF-8'), $header);
-		$section->addTextRun();
+		$section->addText(htmlspecialchars('Gegevens dokter', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
 		
 		$table = $section->addTable();
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("E-mail", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->email, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[13], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("1ste Ouder / verzorger", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->first_name_mother . ' ' . $userObject->last_name_mother, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Telefoon", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[14], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("2de Ouder / verzorger", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->first_name_father.' '.$userObject->last_name_father, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Adres en huisnummer", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[15] . ' ' . $post[16], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Adres", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->address . ' ' . $userObject->number, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Postcode en woonplaats", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->postalcode . ' ' . $userObject->city, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Telefoon bij onbereikbaar", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->phone_unreachable, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Relatie tot kind(eren) ", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->relation_child, ENT_COMPAT, 'UTF-8'));
-		
-		$section->addTextRun();
-		$section->addTextRun();
-		
-		$section->addText(htmlspecialchars('Gegevens dokter', ENT_COMPAT, 'UTF-8'), $header);
-		$section->addTextRun();
+		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[17], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+
+		$section->addTextRun();				
+		$section->addText(htmlspecialchars('Gegevens tandarts', ENT_COMPAT, 'UTF-8'), $header, $noSpace);
 		
 		$table = $section->addTable();
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->name_doc, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[18], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Telefoon", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->phone_doc, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Telefoon", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[19], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Adres", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->address_doc, ENT_COMPAT, 'UTF-8'));
+		$table->addCell(3000)->addText(htmlspecialchars("Adres en huisnummer", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[20] . ' ' . $post[21], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_doc, ENT_COMPAT, 'UTF-8'));
-		
-		$section->addTextRun();
-		$section->addTextRun();
-		
-		$section->addText(htmlspecialchars('Gegevens tandarts', ENT_COMPAT, 'UTF-8'), $header);
-		$section->addTextRun();
-		
-		$table = $section->addTable();
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Naam", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->name_dentist, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Telefoon", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->phone_dentist, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Adres", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->address_dentist, ENT_COMPAT, 'UTF-8'));
-		$table->addRow();
-		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'));
-		$table->addCell(5000)->addText(htmlspecialchars($userObject->city_dentist, ENT_COMPAT, 'UTF-8'));		
+		$table->addCell(3000)->addText(htmlspecialchars("Woonplaats", ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
+		$table->addCell(5000)->addText(htmlspecialchars($post[22], ENT_COMPAT, 'UTF-8'), $textParams, $noSpace);
 		
 		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($this->_phpWord, 'Word2007');
+		
 		$objWriter->save($filename);
 	}
 	/**
@@ -240,18 +367,18 @@ class PHPWordCustom {
 		
 		$table = $section->addTable();
 		$table->addRow();
-		$table->addCell(2500)->addText(htmlspecialchars("Strippenkaart", ENT_COMPAT, 'UTF-8'),  array(
+		$table->addCell(2500)->addText(htmlspecialchars("Aantal", ENT_COMPAT, 'UTF-8'),  array(
 	      'size' => 13,
 	      'bold' => true,
 	    ));
-		$table->addCell(2500)->addText(htmlspecialchars("Aantal", ENT_COMPAT, 'UTF-8'),  array(
+		$table->addCell(2500)->addText(htmlspecialchars("Strippenkaart", ENT_COMPAT, 'UTF-8'),  array(
 	      'size' => 13,
 	      'bold' => true,
 	    ));
 		foreach($cards as $card){
 			$table->addRow();
-			$table->addCell(2500)->addText(htmlspecialchars(html_entity_decode($card->card), ENT_COMPAT, 'UTF-8'));
 			$table->addCell(2500)->addText(htmlspecialchars($card->CountCard, ENT_COMPAT, 'UTF-8'));
+			$table->addCell(2500)->addText(htmlspecialchars(html_entity_decode($card->card), ENT_COMPAT, 'UTF-8'));
 		}
 				
 		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($this->_phpWord, 'Word2007');

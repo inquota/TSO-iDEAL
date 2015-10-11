@@ -33,7 +33,7 @@ require 'classes/TargetPayIdeal.php';
 function tso_admin_actions() {
 	add_menu_page("TSO", "TSO", 'manage_options', "tso", "tso_submissions");
 	add_submenu_page( 'tso', 'Betalingen', 'Betalingen', 'manage_options', 'tso', 'tso_submissions');
-	add_submenu_page( 'tso', 'Betalingen per week', 'Betalingen per week', 'manage_options', 'tso', 'tso_submissions_per_week');
+	add_submenu_page( 'tso', 'Betalingen per week', 'Betalingen per week', 'manage_options', 'tso_payments_per_week', 'tso_submissions_per_week');
 	add_submenu_page( 'tso', 'Aanmeldingen', 'Aanmeldingen', 'manage_options', 'users', 'tso_users');
 	add_submenu_page( 'tso', 'Scholen', 'Scholen', 'manage_options', 'schools', 'tso_schools');
 	add_submenu_page( 'tso', 'Kinderen', 'Kinderen', 'manage_options', 'children', 'tso_children');
@@ -399,14 +399,15 @@ $wpdb->query('CREATE TABLE IF NOT EXISTS `'.$wpdb->prefix.'tso_maillog` (
 		0 => array('source' => 'tso-ideal-check.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
 		1 => array('source' => 'tso-verify.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
 		2 => array('source' => 'tso-export-children.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
-		3 => array('source' => 'tso-template-account-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		4 => array('source' => 'tso-template-account-edit.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		5 => array('source' => 'tso-template-card.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		6 => array('source' => 'tso-template-card-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		7 => array('source' => 'tso-template-login.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		8 => array('source' => 'tso-template-password-change.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		9 => array('source' => 'tso-template-password-forget.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
-		10 => array('source' => 'tso-template-payment-done.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		3 => array('source' => 'tso-export-payments-last-week.php', 'target' => $path, 'copy_from' => $path . 'wp-content/plugins/tso/source_files'),
+		4 => array('source' => 'tso-template-account-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		5 => array('source' => 'tso-template-account-edit.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		6 => array('source' => 'tso-template-card.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		7 => array('source' => 'tso-template-card-add.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		8 => array('source' => 'tso-template-login.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		9 => array('source' => 'tso-template-password-change.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		10 => array('source' => 'tso-template-password-forget.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
+		11 => array('source' => 'tso-template-payment-done.php', 'target' => get_template_directory(), 'copy_from' => $path . 'wp-content/plugins/tso/templates'),
 	);
 	
 	foreach($source_files as $k=>$v){
@@ -431,3 +432,58 @@ function some_random_code($atts){
    
 }
 add_shortcode( 'some_random_code_sc', 'some_random_code' );
+
+
+/**
+ * Hook Activate
+ */
+/*register_activation_hook(__FILE__, 'my_activation');
+function my_activation() {
+	if( !wp_next_scheduled( 'mycronjob' ) ) {  
+	   wp_schedule_event( time(), 'daily', 'mycronjob' );  
+	}
+}
+register_deactivation_hook(__FILE__, 'my_deactivation');
+function my_deactivation() {
+	wp_clear_scheduled_hook('mycronjob');
+}
+// for test purpose
+/*function isa_add_every_three_minutes( $schedules ) {
+  
+    $schedules['every_three_minutes'] = array(
+            'interval'  => 180,
+            'display'   => __( 'Every 3 Minutes', 'textdomain' )
+    );
+     
+    return $schedules;
+}
+add_filter( 'cron_schedules', 'isa_add_every_three_minutes' );
+
+// here's the function we'd like to call with our cron job
+function my_repeat_function() {
+	
+	global $wpdb;
+	
+	$functionsClass = new Functions();
+	
+	$dateTime = new DateTime();
+
+    // Check that the day is Monday
+    if($dateTime->format('N') == 1)
+    {
+		// Creating the new document...
+		$PHPWordCustom = new PHPWordCustom();
+		
+		$week = date('W', strtotime('last week'));
+		
+		$filename = 'Betalingen-Week-'.$week.'.docx';
+		$PHPWordCustom->createWordPaymentsLastWeek($wpdb, date('Y'), $week, $filename, 'https://delunchclub-opo.nl/wp-content/uploads/2015/05/cropped-header_27-51.jpg');
+		
+		$message = '<h1>Betalingen van week' . $week. '</h1>';
+		$blog_title = get_bloginfo(); 
+		$functionsClass->SendMail($blog_title, $filename, $settings->tso_admin_mail, $message, $filename);
+		unlink($filename);
+    }
+}
+// hook that function onto our scheduled event:
+add_action ('mycronjob', 'my_repeat_function');*/

@@ -1,3 +1,4 @@
+<link rel='stylesheet' id='jquery-ui-css'  href='//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css?ver=4.2.2' type='text/css' media='all' />
 <?php
 global $wpdb;
 $site_url = site_url();
@@ -5,6 +6,7 @@ $table_submissions = $wpdb->prefix . 'tso_submissions';
 $table_schools = $wpdb->prefix . 'tso_schools';
 $table_users = $wpdb->prefix . 'tso_users';
 $table_children = $wpdb->prefix . 'tso_children';
+$table_cards = $wpdb->prefix . 'tso_cards';
 	
 $pagenum = isset( $_GET['pagenum'] ) ? absint( $_GET['pagenum'] ) : 1;
 
@@ -17,6 +19,31 @@ $limit = 20; // number of rows in page
 $offset = ( $pagenum - 1 ) * $limit;
 $total = $wpdb->get_var( "SELECT COUNT(`id`) FROM {$table_submissions}" );
 $num_of_pages = ceil( $total / $limit );
+
+// get all children
+$children = $wpdb->get_results( 
+"
+SELECT 
+	*
+FROM 
+	{$table_children}
+ORDER BY 
+	last_name 
+ASC
+"
+);
+// get all cards
+$cards = $wpdb->get_results( 
+"
+SELECT 
+	*
+FROM 
+	{$table_cards}
+ORDER BY 
+	description 
+ASC
+"
+);
 
 $oBookings = $wpdb->get_results( 
 "
@@ -40,12 +67,71 @@ FROM
 	LEFT JOIN {$table_users} AS User ON (Submission.user_id=User.id) 
 	LEFT JOIN {$table_schools} AS School ON (Submission.school_id=School.id)
 	LEFT JOIN {$table_children} AS Child ON (Submission.child_id=Child.id)
+	ORDER BY Submission.created_at DESC, School.name ASC
 "
 );
 
+if(isset($_POST['action_add'])) :
+	
+	$child_id =  $_POST['child_id'];
+	$card_id =  $_POST['card_id'];
+	$bank =  $_POST['bank'];
+	$ec =  $_POST['ec'];
+	if(empty($ec)) {
+		$ec = 0;
+	}
+	$trxid =  $_POST['trxid'];
+	if(empty($trxid)) {
+		$trxid = 0;
+	}
+	
+	
+	$payment_status =  $_POST['payment_status'];
+	$ip = $_SERVER['REMOTE_ADDR'];
+	$created_at =  $_POST['created_at'];
+
+	// get Child
+	$child = $wpdb->get_row(
+	"
+	SELECT 
+	Child.*,
+	User.* 
+	FROM {$table_children} AS Child
+	LEFT JOIN {$table_users} AS User ON (Child.user_id=User.id)
+	WHERE Child.id = ".$child_id."", OBJECT);
+	
+	// get Card
+	$card = $wpdb->get_row(
+	"
+	SELECT 
+	*
+	FROM {$table_cards} AS Card
+	WHERE Card.id = ".$card_id."", OBJECT);
+		
+	$wpdb->insert( 
+		$table_submissions, 
+			array( 
+				'user_id' => $child->user_id,	// string
+				'child_id' => $child_id,	// string
+				'school_id' => $child->school_id,	// string
+				'groep' => $child->groep,	// string
+				'card' => $card->description,	// string
+				'price' => $card->price,	// string
+				'bank' => $bank,	// string
+				'ec' => $ec,	// string
+				'trxid' => $trxid,	// string
+				'ip' => $ip,	// string
+				'payment_status' => $payment_status,	// string
+				'created_at' => $created_at . ' 00:00:00'	// string
+			)
+		);
+
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=tso"; </script>';
+endif;	
+
 if(isset($_POST['action_delete'])) :
 	$wpdb->query( "DELETE FROM {$table_submissions} WHERE id IN (".implode(',', $_POST['id']).")");
-	echo '<meta http-equiv="refresh" content="0; URL='.$site_url.'/wp-admin/admin.php?page=tso">';
+	echo'<script>window.location="'.$site_url.'/wp-admin/admin.php?page=tso"; </script>';
 endif;
 
 
@@ -55,22 +141,83 @@ endif;
 <div class="wrap">
 	<?php    echo "<h2>" . __( 'Betalingen', 'oscimp_trdom' ) . "</h2>"; ?>
 <form method="POST">
+	<?php    echo "<h3>" . __( 'Invoeren', 'oscimp_trdom' ) . "</h3>"; ?>
+	<p>
+		Je kan hier een betaling handmatig invoeren.
+	</p>
+	<table style="width: 100%; background: #FFFFFF;">
+		<tr>
+			<td>Kind</td>
+			<td>
+				<select name="child_id">
+					<?php foreach($children as $child) : ?>
+						<?php if(!empty($child->first_name) && !empty($child->last_name)) : ?>
+							<option value="<?php echo $child->id; ?>"><?php echo $child->last_name; ?>, <?php echo $child->first_name; ?></option>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Strippenkaart</td>
+			<td>
+				<select name="card_id">
+					<?php foreach($cards as $card) : ?>
+						<option value="<?php echo $card->id; ?>"><?php echo $card->description; ?></option>
+					<?php endforeach; ?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Bank</td>
+			<td>
+				<select name="bank">
+					<?php foreach($banks as $key_bank => $bank) : ?>
+						<option value="<?php echo $key_bank; ?>"><?php echo $bank; ?></option>
+					<?php endforeach; ?>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>EC</td>
+			<td><input type="text" name="ec" /> Geen EC? Vul dan een 0 in.</td>
+		</tr>
+		<tr>
+			<td>Transaction id</td>
+			<td><input type="text" name="trxid" /> Geen Transaction id? Vul dan een 0 in.</td>
+		</tr>
+		<tr>
+			<td>Betaald</td>
+			<td>
+				<select name="payment_status">
+					<option value="1">Ja</option>
+					<option value="0">Nee</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>Datum</td>
+			<td><input type="text" name="created_at" id="datepicker" readonly="readonly" /></td>
+		</tr>
+	</table>
+	<input type="submit" name="action_add" value="Toevoegen" class="button button-primary button-large" />
+	<hr />
 	
-	<input type="submit" name="action_delete" value="Delete" class="button button-primary button-large" />
+	<input type="submit" name="action_delete" value="Delete" onClick="return confirm('Weet je het zeker?');" class="button button-primary button-large" />
 	<table class="widefat fixed" cellspacing="0">
     <thead>
     <tr>
 
             <th id="cb" class="manage-column column-cb check-column" scope="col"></th> 
 			<th class="manage-column column-columnname" scope="col">Id</th>
-			<th class="manage-column column-columnname" scope="col">Verzorgers</th>
+			<th class="manage-column column-columnname" scope="col">Ouders / verzorgers</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
 			<th class="manage-column column-columnname" scope="col">Groep</th>
 			<th class="manage-column column-columnname" scope="col">Kind</th>
 			<th class="manage-column column-columnname" scope="col">Strippenkaart</th>
 			<th class="manage-column column-columnname" scope="col">Betaald</th>
 			<th class="manage-column column-columnname" scope="col">Bank</th>
-			<th class="manage-column column-columnname" scope="col">Aangemaakt op</th>
+			<th class="manage-column column-columnname" scope="col">Created</th>
     </tr>
     </thead>
 
@@ -79,14 +226,14 @@ endif;
 
             <th class="manage-column column-cb check-column" scope="col"></th>
 			<th class="manage-column column-columnname" scope="col">Id</th>
-			<th class="manage-column column-columnname" scope="col">Verzorgers</th>
+			<th class="manage-column column-columnname" scope="col">Ouders / verzorgers</th>
 			<th class="manage-column column-columnname" scope="col">School</th>
 			<th class="manage-column column-columnname" scope="col">Groep</th>
 			<th class="manage-column column-columnname" scope="col">Kind</th>
 			<th class="manage-column column-columnname" scope="col">Strippenkaart</th>
 			<th class="manage-column column-columnname" scope="col">Betaald</th>
 			<th class="manage-column column-columnname" scope="col">Bank</th>
-			<th class="manage-column column-columnname" scope="col">Aangemaakt op</th>
+			<th class="manage-column column-columnname" scope="col">Created</th>
 
     </tr>
     </tfoot>
@@ -128,3 +275,19 @@ if ( $page_links ) {
 	
 	
 <div>
+	
+	
+	<script type='text/javascript' src='//code.jquery.com/ui/1.11.4/jquery-ui.js?ver=4.2.2'></script>
+	<script>	
+	var dateToday = new Date();
+	
+	// display datepicker
+	jQuery( "#datepicker" ).datepicker({
+		altField: "#dateHidden",
+	    // The format you want
+	    altFormat: "yy-mm-dd",
+	    // The format the user actually sees
+	    dateFormat: "yy-mm-dd",
+  	});
+  
+	</script>
